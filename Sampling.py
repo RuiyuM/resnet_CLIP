@@ -523,8 +523,10 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
     # 创建一个dict，key是index，value是十个长度的邻居point。
 
     # queryIndex 存放known class的地方
+    addition_query = []
+    addition_query_B = []
     queryIndex = []
-
+    invalid_index = []
     index_knn = {}
     for i in range(len(sel_idx)):
         if sel_idx[i] not in index_knn:
@@ -538,22 +540,33 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
     for key, value in S_ij.items():
         count_known = 0
         count_unknown = 0
+        count_different = 0
         index_Neighbor = index_knn[key]
         # known 的情况
         if value[0][0] < 20:
             for i in range(len(index_Neighbor[0])):
                 current_index = (index_Neighbor[0][i]).item()
+                if current_index != value[0][0]:
+                    count_different += 1
                 if current_index in labeled_ind_train:
                     count_known += 1
                 elif current_index in invalidList:
                     count_unknown += 1
                 else:
-                    if S_ij[current_index][0][0] < 20:
-                        count_known += 1
+                    if current_index in S_ij:
+
+                        if S_ij[current_index][0][0] < 20:
+                            count_known += 1
+                        else:
+                            count_unknown += 1
                     else:
                         count_unknown += 1
-            if count_known >= 4:
+            if count_known >=7:
                 queryIndex.append([key, value[0]])
+            if count_unknown >= 8:
+                addition_query.append([key, value[0]])
+            if count_different >= 8:
+                addition_query_B.append([key, value[0]])
         # 假设20个known class 那么第21位就是unknown
         if value[0][0] == 20:
             for i in range(len(index_Neighbor[0])):
@@ -563,29 +576,110 @@ def My_Query_Strategy(args, unlabeledloader, Len_labeled_ind_train, model, use_g
                 elif current_index in invalidList:
                     count_unknown += 1
                 else:
-                    if S_ij[current_index][0][0] < 20:
-                        count_known += 1
+                    if current_index in S_ij:
+
+                        if S_ij[current_index][0][0] < 20:
+                            count_known += 1
+                        else:
+                            count_unknown += 1
                     else:
                         count_unknown += 1
-            if count_unknown < 4:
-                queryIndex.append([key, value[0]])
+            if count_unknown >= 5:
+                invalid_index.append([key, value[0]])
+            if count_known >= 8:
+                addition_query.append([key, value[0]])
 
     queryIndex = sorted(queryIndex, key=lambda x: x[1][1], reverse=True)
+    addition_query = sorted(addition_query, key=lambda x: x[1][1], reverse=True)
+    addition_query_B = sorted(addition_query_B, key=lambda x: x[1][1], reverse=True)
+
+    # invalid_index = sorted(queryIndex, key=lambda x: x[1][1], reverse=True)
 
     # 取前1500个index
     # final_chosen_index = [item[1][0] for item in queryIndex[:1500]]
+    special_chosen_index_A = []
+    special_chosen_index_B = []
+    special_chosen_index_B_unknown_class_not_used_train = []
     final_chosen_index = []
-    invalid_index = []
-    for item in queryIndex[:1000]:
+    final_unknown_index = []
+
+    if len(addition_query_B) >= 1500:
+        for item in addition_query_B[:1500]:
+            num = item[0]
+            num3 = item[1][2]
+
+            if num3 < args.known_class:
+                special_chosen_index_B.append(num)
+            elif num3 >= args.known_class:
+                special_chosen_index_B_unknown_class_not_used_train.append(num)
+    else:
+        for item in addition_query_B:
+            num = item[0]
+            num3 = item[1][2]
+
+            if num3 < args.known_class:
+                special_chosen_index_B.append(num)
+            elif num3 >= args.known_class:
+                special_chosen_index_B_unknown_class_not_used_train.append(num)
+
+    if len(addition_query) >= 1500:
+        for item in addition_query[:1500]:
+            num = item[0]
+            num3 = item[1][2]
+
+            if num3 < args.known_class:
+                special_chosen_index_A.append(num)
+            elif num3 >= args.known_class:
+                final_unknown_index.append(num)
+    else:
+        for item in addition_query:
+            num = item[0]
+            num3 = item[1][2]
+
+            if num3 < args.known_class:
+                special_chosen_index_A.append(num)
+            elif num3 >= args.known_class:
+                final_unknown_index.append(num)
+
+
+    for item in queryIndex[:3000]:
         num = item[0]
         num3 = item[1][2]
 
         if num3 < args.known_class:
             final_chosen_index.append(num)
         elif num3 >= args.known_class:
-            invalid_index.append(num)
+            final_unknown_index.append(num)
 
-    precision = len(final_chosen_index) / 1000
-    recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+
+    invalid_index = sorted(invalid_index, key=lambda x: x[1][1], reverse=True)
+    if len(invalid_index) >= 1000:
+        for item in invalid_index[:1000]:
+            num = item[0]
+            num3 = item[1][2]
+
+            if num3 < args.known_class:
+                final_chosen_index.append(num)
+            elif num3 >= args.known_class:
+                final_unknown_index.append(num)
+    else:
+        for item in invalid_index:
+            num = item[0]
+            num3 = item[1][2]
+
+            if num3 < args.known_class:
+                final_chosen_index.append(num)
+            elif num3 >= args.known_class:
+                final_unknown_index.append(num)
+
+    if len(invalid_index) >= 1000:
+        # Query_number = 2000 + len(addition_query) + len(addition_query_B)
+        Query_number = 3000 + 1000 + 1000
+    else:
+        # Query_number = 1000 + len(invalid_index) + len(addition_query) + len(addition_query_B)
+        Query_number = 2000 + 3000
+
+    precision = (len(final_chosen_index) + len(special_chosen_index_A) + len(special_chosen_index_B))/ (Query_number)
+    recall = ((len(final_chosen_index) + len(special_chosen_index_A) + len(special_chosen_index_B))+ Len_labeled_ind_train) / (
             len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
-    return final_chosen_index, invalid_index, precision, recall
+    return final_chosen_index, final_unknown_index, precision, recall, special_chosen_index_A, special_chosen_index_B, special_chosen_index_B_unknown_class_not_used_train

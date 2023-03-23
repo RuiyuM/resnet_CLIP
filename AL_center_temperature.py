@@ -77,7 +77,7 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    # indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
+    indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
 
     if args.use_cpu: use_gpu = False
 
@@ -214,16 +214,16 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.Max_AV_sampling(args, unlabeledloader,
                                                                                                  len(labeled_ind_train),
                                                                                                  model_A, use_gpu)
-        # elif args.query_strategy == "My_Query_Strategy":
-        #     queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.My_Query_Strategy(args, unlabeledloader,
-        #                                                                                          len(labeled_ind_train),
-        #                                                                                          model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
+        elif args.query_strategy == "My_Query_Strategy":
+            queryIndex, invalidIndex, Precision[query], Recall[query], special_chosen_index_A, special_chosen_index_B, special_chosen_index_B_unknown_class_not_used_train = Sampling.My_Query_Strategy(args, unlabeledloader,
+                                                                                                 len(labeled_ind_train),
+                                                                                                 model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
 
 
 
 
         # Update labeled, unlabeled and invalid set
-        unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
+        unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex) - set(special_chosen_index_A) - set(special_chosen_index_B) - set(special_chosen_index_B_unknown_class_not_used_train))
         labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
         invalidList = list(invalidList) + list(invalidIndex)
 
@@ -235,7 +235,7 @@ def main():
             name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
             batch_size=args.batch_size, use_gpu=use_gpu,
             num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
-            unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train + invalidList,
+            unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train + invalidList + special_chosen_index_A,
         )
         trainloader_A, testloader, unlabeledloader = dataset.trainloader, dataset.testloader, dataset.unlabeledloader
         # labeled_ind_train, unlabeled_ind_train = dataset.labeled_ind_train, dataset.unlabeled_ind_train
@@ -243,7 +243,7 @@ def main():
             name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
             batch_size=args.batch_size, use_gpu=use_gpu,
             num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
-            unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train,
+            unlabeled_ind_train=unlabeled_ind_train, labeled_ind_train=labeled_ind_train + special_chosen_index_B,
         )
         trainloader_B = B_dataset.trainloader
 
