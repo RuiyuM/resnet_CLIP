@@ -7,9 +7,9 @@ Files already downloaded and verified
 Data Loader
 Creating model: resnet18
 ==> Test
-Model_A | Accuracy (%): 20.100000381469727	 Error rate (%): 79.9000015258789
-Model_B | Accuracy (%): 20.500001907348633	 Error rate (%): 79.5
-Query Strategy: score_query | Query Batch: 1500 | Valid Query Nums: 466 | Query Precision: 0.31066666666666665 | Query Recall: 0.1266 | Training Nums: 1266 | Unalebled Nums: 47700
+Model_A | Accuracy (%): 20.650001525878906	 Error rate (%): 79.3499984741211
+Model_B | Accuracy (%): 19.900001525878906	 Error rate (%): 80.0999984741211
+Query Strategy: score_query | Query Batch: 1500 | Valid Query Nums: 448 | Query Precision: 0.2986666666666667 | Query Recall: 0.1248 | Training Nums: 1248 | Unalebled Nums: 47700
 Files already downloaded and verified
 openset here!
 Files already downloaded and verified
@@ -17,5 +17,22 @@ Files already downloaded and verified
 openset here!
 Files already downloaded and verified
 ==> Test
-Model_A | Accuracy (%): 18.80000114440918	 Error rate (%): 81.19999694824219
-Model_B | Accuracy (%): 22.750001907348633	 Error rate (%): 77.25
+Model_A | Accuracy (%): 16.100000381469727	 Error rate (%): 83.9000015258789
+Model_B | Accuracy (%): 24.450000762939453	 Error rate (%): 75.55000305175781
+Query Strategy: score_query | Query Batch: 1500 | Valid Query Nums: 615 | Query Precision: 0.41 | Query Recall: 0.1863 | Training Nums: 1863 | Unalebled Nums: 46200
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 19.900001525878906	 Error rate (%): 80.0999984741211
+Model_B | Accuracy (%): 28.000001907348633	 Error rate (%): 72.0
+Query Strategy: score_query | Query Batch: 1500 | Valid Query Nums: 636 | Query Precision: 0.424 | Query Recall: 0.2499 | Training Nums: 2499 | Unalebled Nums: 44700
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified

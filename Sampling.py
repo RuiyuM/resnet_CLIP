@@ -859,13 +859,15 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
                     current_knn_label = known_label_index_dict[current_knn_index][0]
                 current_near_label.append(current_knn_label)
             # knn label 是每个图片附近的10个点的predicted label是什么，
-            knn_labels.append(current_near_label)
+
             # load出来的数据的predicted label
-            pretend_noisy_label.append(label_in_s_index)
+            if label_in_s_index < args.known_class:
+                knn_labels.append(current_near_label)
+                pretend_noisy_label.append(label_in_s_index)
             # 新的index的顺序，和sel_idx 顺序一致但是剔除了label过的数据
-            current_index_order.append(current_index)
+                current_index_order.append(current_index)
             # knn距离
-            values_after_query.append(value_np[i].tolist())
+                values_after_query.append(value_np[i].tolist())
 
     # predicted_label_matched_with_sel_index 这个variable需要是每一个image和附件的10个点的label
     pretend_noisy_label = np.array(pretend_noisy_label)
