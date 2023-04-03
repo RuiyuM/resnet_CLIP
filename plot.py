@@ -233,30 +233,30 @@ def plot_performance_cifar100():
     temperature_recall = []
 
     for seed in seeds:
-        with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_random.pkl", 'rb') as f:
-            data = pickle.load(f)
-            random_acc.append([data['Acc'][i] for i in data['Acc']])
-            random_precision.append([data['Precision'][i] for i in data['Precision']])
-            random_recall.append([data['Recall'][i] for i in data['Recall']])
-        f.close()
-        with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_uncertainty.pkl", 'rb') as f:
-            data = pickle.load(f)
-            uncertainty_acc.append([data['Acc'][i] for i in data['Acc']])
-            uncertainty_precision.append([data['Precision'][i] for i in data['Precision']])
-            uncertainty_recall.append([data['Recall'][i] for i in data['Recall']])
-        f.close()
-        with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_AV_based.pkl", 'rb') as f:
-            data = pickle.load(f)
-            AV_based_acc.append([data['Acc'][i] for i in data['Acc']])
-            AV_based_precision.append([data['Precision'][i] for i in data['Precision']])
-            AV_based_recall.append([data['Recall'][i] for i in data['Recall']])
-        f.close()
-        with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_AV_uncertainty.pkl", 'rb') as f:
-            data = pickle.load(f)
-            max_av_acc.append([data['Acc'][i] for i in data['Acc']])
-            max_av_precision.append([data['Precision'][i] for i in data['Precision']])
-            max_av_recall.append([data['Recall'][i] for i in data['Recall']])
-        f.close()
+        # with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_random.pkl", 'rb') as f:
+        #     data = pickle.load(f)
+        #     random_acc.append([data['Acc'][i] for i in data['Acc']])
+        #     random_precision.append([data['Precision'][i] for i in data['Precision']])
+        #     random_recall.append([data['Recall'][i] for i in data['Recall']])
+        # f.close()
+        # with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_uncertainty.pkl", 'rb') as f:
+        #     data = pickle.load(f)
+        #     uncertainty_acc.append([data['Acc'][i] for i in data['Acc']])
+        #     uncertainty_precision.append([data['Precision'][i] for i in data['Precision']])
+        #     uncertainty_recall.append([data['Recall'][i] for i in data['Recall']])
+        # f.close()
+        # with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_AV_based.pkl", 'rb') as f:
+        #     data = pickle.load(f)
+        #     AV_based_acc.append([data['Acc'][i] for i in data['Acc']])
+        #     AV_based_precision.append([data['Precision'][i] for i in data['Precision']])
+        #     AV_based_recall.append([data['Recall'][i] for i in data['Recall']])
+        # f.close()
+        # with open("log_AL/"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_AV_uncertainty.pkl", 'rb') as f:
+        #     data = pickle.load(f)
+        #     max_av_acc.append([data['Acc'][i] for i in data['Acc']])
+        #     max_av_precision.append([data['Precision'][i] for i in data['Precision']])
+        #     max_av_recall.append([data['Recall'][i] for i in data['Recall']])
+        # f.close()
         with open("log_AL/temperature_"+model+"_cifar100_known"+str(known)+"_init"+str(init)+"_batch1500_seed"+str(seed)+"_AV_temperature_unknown_T0.5_known_T0.5_modelB_T1.0.pkl", 'rb') as f:
             data = pickle.load(f)
             temperature_acc.append([data['Acc'][i] for i in data['Acc']])

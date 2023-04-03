@@ -45,7 +45,7 @@ parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=1500)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy'])
+                             'AV_temperature', 'My_Query_Strategy', 'test_query', "score_query"])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
@@ -77,7 +77,7 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
+    # indices, sel_idx, values = CIFAR100_EXTRACT_FEATURE_CLIP()
 
     if args.use_cpu: use_gpu = False
 
@@ -102,6 +102,8 @@ def main():
     negativeloader = None  # init negativeloader none
     invalidList = []
     labeled_ind_train, unlabeled_ind_train = dataset.labeled_ind_train, dataset.unlabeled_ind_train
+
+    indices, sel_idx, values, known_label_index_dict = CIFAR100_EXTRACT_FEATURE_CLIP(labeled_ind_train)
 
     print("Creating model: {}".format(args.model))
     # model = models.create(name=args.model, num_classes=dataset.num_classes)
@@ -219,13 +221,31 @@ def main():
                                                                                                  len(labeled_ind_train),
                                                                                                  model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
 
-
-
+        elif args.query_strategy == "test_query":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query(args, unlabeledloader,
+                                                                                                 len(labeled_ind_train),
+                                                                                                 model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
+        elif args.query_strategy == "score_query":
+            queryIndex, invalidIndex, Precision[query], Recall[query], valid_label = Sampling.score_query(args, unlabeledloader,
+                                                                                                 len(labeled_ind_train),
+                                                                                                 model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx, values, err_A, known_label_index_dict)
 
         # Update labeled, unlabeled and invalid set
-        unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
+        unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex) - set(invalidIndex))
         labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
         invalidList = list(invalidList) + list(invalidIndex)
+
+        # add queryIndex and invalidIndex to known dict
+        for i in range(len(queryIndex)):
+            if queryIndex[i] not in known_label_index_dict:
+                known_label_index_dict[queryIndex[i]] = []
+                known_label_index_dict[queryIndex[i]].append(valid_label[i])
+        for i in range(len(invalidIndex)):
+            if invalidIndex[i] not in known_label_index_dict:
+                known_label_index_dict[invalidIndex[i]] = []
+                known_label_index_dict[invalidIndex[i]].append(args.known_class + 1)
+
+
 
         print("Query Strategy: " + args.query_strategy + " | Query Batch: " + str(
             args.query_batch) + " | Valid Query Nums: " + str(len(queryIndex)) + " | Query Precision: " + str(
@@ -289,15 +309,21 @@ def train_A(model, criterion_xent, criterion_cent,
     unknown_T = args.unknown_T
     invalid_class = args.known_class
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
+
         # Reduce temperature
         T = torch.tensor([known_T] * labels.shape[0], dtype=float)
+
+
         for i in range(len(labels)):
             # Annotate "unknown"
             if index[i] in invalidList:
                 labels[i] = invalid_class
                 T[i] = unknown_T
+
+
         if use_gpu:
             data, labels, T = data.cuda(), labels.cuda(), T.cuda()
+
         features, outputs = model(data)
         outputs = outputs / T.unsqueeze(1)
         loss_xent = criterion_xent(outputs, labels)
@@ -330,7 +356,6 @@ def train_A(model, criterion_xent, criterion_cent,
         all_features = np.concatenate(all_features, 0)
         all_labels = np.concatenate(all_labels, 0)
         plot_features(all_features, all_labels, num_classes, epoch, prefix='train')
-
 
 def train_B(model, criterion_xent, criterion_cent,
             optimizer_model, optimizer_centloss,
