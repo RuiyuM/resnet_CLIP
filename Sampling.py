@@ -953,7 +953,7 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
 
     # for key, value in neighbor_unknown.items():
     #    print (key, sum(value)/len(value))
-
+    # sort according to the score
     queryIndex = sorted(queryIndex, key=lambda x: x[3], reverse=True)
     # queryIndex_unknown = sorted(queryIndex_unknown, key=lambda x: x[1][1], reverse=True)
 
