@@ -96,3 +96,8 @@ Files already downloaded and verified
 Files already downloaded and verified
 openset here!
 Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 32.45000076293945	 Error rate (%): 67.55000305175781
+Model_B | Accuracy (%): 53.70000076293945	 Error rate (%): 46.29999923706055
+Query Strategy: score_query | Query Batch: 1500 | Valid Query Nums: 383 | Query Precision: 0.25533333333333336 | Query Recall: 0.6698 | Training Nums: 6698 | Unalebled Nums: 35205
+Files already downloaded and verified
