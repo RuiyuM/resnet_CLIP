@@ -773,10 +773,11 @@ def test_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, lab
 
     return final_chosen_index, invalid_index, precision, recall
 
+
 # unlabeledloader is int 800
 # sel_idx, indices 的每一个element的index是 sel_idx
 def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, labeled_ind_train, invalidList,
-               indices, sel_idx, values, err_A, known_label_index_dict):
+                indices, sel_idx, values, err_A, known_label_index_dict):
     # err_A 不直接是 noisy transition matrix 但是是noisy label = j true label ！= j的概率
     # 这个值原本通过 noisy transition matrix 计算得来，这里做了简单调换，把模型对known 和 unknown的预测正确率拿出来。
 
@@ -827,10 +828,10 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
             S_index[tmp_index].append([tmp_value, tmp_class, tmp_label])
 
     # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
-    # print(S_index[16854][0][1])
 
-    # 下面的code专门处理predicted, 如果
-
+    # 下面这部分的for loop 主要是把extract feature 里面的load 出来的图片index和上面train set load 出来的index对上。
+    # 比如extract feature 里面的的index顺序是[1, 2, 3, 4, 5] 然后train set load的index顺序是[5，4，2，1， 3]，下面的方法需要用到
+    # predicted label 这样才可以把extract feature 里面的knn的k个image打上label。然后这个label就可以作为noisy label 然后进行后续的算法。
 
     current_index_order = []
     values_after_query = []
@@ -842,8 +843,9 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
     #
     for i in range(len(sel_idx)):
         current_index = sel_idx[i]
+        # 如果这个extract feature里面的index也出现在了上面train set load出来的index就进行下面的操作：
         if current_index in S_index:
-
+            # known_label_index_dict 这个是一个key是index，label是true label的dict
             if current_index in known_label_index_dict:
                 label_in_s_index = known_label_index_dict[0]
             else:
@@ -860,23 +862,25 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
                 current_near_label.append(current_knn_label)
             # knn label 是每个图片附近的10个点的predicted label是什么，
 
-            # load出来的数据的predicted label
+            # load出来的数据的predicted label是known class 才放入特定的list，然后继续后续的计算算出score
             if label_in_s_index < args.known_class:
                 knn_labels.append(current_near_label)
                 pretend_noisy_label.append(label_in_s_index)
-            # 新的index的顺序，和sel_idx 顺序一致但是剔除了label过的数据
+                # 新的index的顺序，和sel_idx 顺序一致但是剔除了label过的数据
                 current_index_order.append(current_index)
-            # knn距离
+                # knn距离
                 values_after_query.append(value_np[i].tolist())
 
-    # predicted_label_matched_with_sel_index 这个variable需要是每一个image和附件的10个点的label
+    # predicted_label_matched_with_sel_index 这个variable 是load出来的image的predicted label
     pretend_noisy_label = np.array(pretend_noisy_label)
     pretend_noisy_label = torch.from_numpy(pretend_noisy_label)
+    # knn_labels_np 是每一个image附近10个image的predicted label
     knn_labels_np = np.array(knn_labels)
     values_after_query = np.array(values_after_query)
     # convert the NumPy array to a PyTorch tensor
     knn_labels_tensor = torch.from_numpy(knn_labels_np)
     predicted_label_matched_with_sel_index = torch.tensor(knn_labels_tensor)
+    # values是extract feature里面计算出来的knn附近点的距离
     values = torch.from_numpy(values_after_query)
     # 下面这个部分就是把knn的距离变成到不同class的prob
     knn_labels_cnt = torch.zeros(len(current_index_order), args.known_class)
@@ -886,9 +890,12 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
         test_variable_2 = (predicted_label_matched_with_sel_index == i)
         knn_labels_cnt[:, i] += torch.sum((test_variable_1) * (test_variable_2), 1)
     knn_labels_prob = F.normalize(knn_labels_cnt, p=2.0, dim=1)
+    '''The NLL loss will be low when the predicted probabilities for the correct labels are high, and it will be high 
+    when the predicted probabilities for the correct labels are low. Thus, minimizing the NLL loss encourages the 
+    model to produce high probabilities for the correct labels, which leads to better classification performance. '''
     score = F.nll_loss(torch.log(knn_labels_prob + 1e-8), pretend_noisy_label, reduction='none')
     score_np = score.cpu().numpy()
-    # python list 长度20 每一个element 是一个[]
+    # python list 长度20 每一个element 是一个[], 把上面算出来的socre根据predicted的label分别放入list_store_score_according_to_class
     list_store_score_according_to_class = []
     for i in range(args.known_class):
         list_store_score_according_to_class.append([])
@@ -902,13 +909,11 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
             continue
         list_store_score_according_to_class[current_score_label].append(score_np[i])
 
-    # for i in range(len(list_store_score_according_to_class)):
-    #     list_store_score_according_to_class[i].sort()
-    # queryIndex 存放known class的地方
+
     queryIndex = []
     queryIndex_unknown = []
     index_knn = {}
-
+# 这个index_knn的dictionary就是说把index 还有它附近的10个点的index对应起来
     for i in range(len(sel_idx)):
 
         if sel_idx[i] not in index_knn:
@@ -923,8 +928,6 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
         if current_index_order[i] not in index_score:
             index_score[current_index_order[i]] = []
             index_score[current_index_order[i]].append(score_np[i])
-
-
 
     for tmp_class in S_per_class:
 
@@ -950,9 +953,6 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
             if current_score >= thre:
                 queryIndex.append([current_index, true_label, current_index, current_score[0]])
 
-
-
-
     # for key, value in neighbor_unknown.items():
     #    print (key, sum(value)/len(value))
     # sort according to the score
@@ -966,7 +966,6 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
 
     valid_label = []
 
-
     for item in queryIndex[:args.query_batch]:
         num = item[2]
         num3 = item[1]
@@ -976,7 +975,6 @@ def score_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, la
 
         elif num3 >= args.known_class:
             invalid_index.append(int(num))
-
 
     # put the label into a list and store it for later use
     for i in range(len(final_chosen_index)):
