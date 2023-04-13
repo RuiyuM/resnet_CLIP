@@ -45,7 +45,7 @@ parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=1500)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy', 'test_query'])
+                             'AV_temperature', 'My_Query_Strategy', 'test_query', "BGADL", "OpenMax", "Core_set", 'certainty'])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
@@ -81,7 +81,7 @@ def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_gpu = torch.cuda.is_available()
 
-    indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
+    # indices, sel_idx = CIFAR100_EXTRACT_FEATURE_CLIP()
 
     if args.use_cpu: use_gpu = False
 
@@ -223,20 +223,34 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.Max_AV_sampling(args, unlabeledloader,
                                                                                                  len(labeled_ind_train),
                                                                                                  model_A, use_gpu)
-        elif args.query_strategy == "My_Query_Strategy":
-            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.My_Query_Strategy(args, unlabeledloader,
-                                                                                                 len(labeled_ind_train),
-                                                                                                 model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
+        # elif args.query_strategy == "My_Query_Strategy":
+        #     queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.My_Query_Strategy(args, unlabeledloader,
+        #                                                                                          len(labeled_ind_train),
+        #                                                                                          model_A, use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
+        #
+        #
+        #
+        # elif args.query_strategy == "test_query":
+        #     queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query(args,
+        #                                                                                  unlabeledloader,
+        #                                                                                  len(labeled_ind_train),
+        #                                                                                  model_A,
+        #                                                                                  use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
 
+        elif args.query_strategy == "BGADL":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.bayesian_generative_active_learning(args, unlabeledloader,
+                                                                                                  len(labeled_ind_train), model_A, use_gpu)
+        elif args.query_strategy == "OpenMax":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.openmax_sampling(args, unlabeledloader,
+                                                                                                  len(labeled_ind_train), model_A, use_gpu)
 
+        elif args.query_strategy == "Core_set":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.core_set(args, unlabeledloader,
+                                                                                                  len(labeled_ind_train), model_A, use_gpu)
 
-        elif args.query_strategy == "test_query":
-            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.test_query(args,
-                                                                                         unlabeledloader,
-                                                                                         len(labeled_ind_train),
-                                                                                         model_A,
-                                                                                         use_gpu, labeled_ind_train, invalidList, indices, sel_idx)
-
+        elif args.query_strategy == "certainty":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.certainty_sampling(args, unlabeledloader,
+                                                                                                  len(labeled_ind_train), model_A, use_gpu)
 
         # Update labeled, unlabeled and invalid set
         unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
@@ -309,7 +323,7 @@ def train_A(model, criterion_xent, criterion_cent,
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
         
         # Reduce temperature
-        T = torch.tensor([known_T] * labels.shape[0], dtype=float)
+        # T = torch.tensor([known_T] * labels.shape[0], dtype=float)
         
         '''
         for i in range(len(labels)):
@@ -320,10 +334,11 @@ def train_A(model, criterion_xent, criterion_cent,
         '''
 
         if use_gpu:
-            data, labels, T = data.cuda(), labels.cuda(), T.cuda()
+            # data, labels, T = data.cuda(), labels.cuda(), T.cuda()
+            data, labels = data.cuda(), labels.cuda()
 
         features, outputs = model(data)
-        outputs = outputs / T.unsqueeze(1)
+        # outputs = outputs / T.unsqueeze(1)
         loss_xent = criterion_xent(outputs, labels)
         loss_cent = criterion_cent(features, labels)
         loss_cent *= args.weight_cent
