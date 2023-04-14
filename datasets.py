@@ -458,8 +458,99 @@ class CIFAR10(object):
         return labeled_ind, unlabeled_ind
 
 
+# TinyImageNet data set
+
+class TinyImageNet(object):
+    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
+                 labeled_ind_train=None):
+        transform = transforms.Compose([
+            transforms.Resize(32),
+            transforms.CenterCrop(32),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+
+        pin_memory = True if use_gpu else False
+
+        trainset = CustomTinyImageNetDataset_train(transform=transform)
+
+        if unlabeled_ind_train is None and labeled_ind_train is None:
+            if is_mini:
+                labeled_ind_train, unlabeled_ind_train = self.filter_known_unknown_10percent(trainset)
+                self.labeled_ind_train, self.unlabeled_ind_train = labeled_ind_train, unlabeled_ind_train
+            else:
+                labeled_ind_train = self.filter_known_unknown(trainset)
+                self.labeled_ind_train = labeled_ind_train
+        else:
+            self.labeled_ind_train, self.unlabeled_ind_train = labeled_ind_train, unlabeled_ind_train
+
+        if is_filter:
+            print("openset here!")
+            trainloader = torch.utils.data.DataLoader(
+                trainset, batch_size=batch_size, shuffle=False,
+                num_workers=num_workers, pin_memory=pin_memory,
+                sampler=SubsetRandomSampler(labeled_ind_train),
+            )
+            unlabeledloader = torch.utils.data.DataLoader(
+                trainset, batch_size=batch_size, shuffle=False,
+                num_workers=num_workers, pin_memory=pin_memory,
+                sampler=SubsetRandomSampler(unlabeled_ind_train),
+            )
+        else:
+            trainloader = torch.utils.data.DataLoader(
+                trainset, batch_size=batch_size, shuffle=True,
+                num_workers=num_workers, pin_memory=pin_memory,
+            )
+
+        CustomTinyImageNetDataset_test.load_dataset(transform=transform)
+        testset = CustomTinyImageNetDataset_test()
+
+        filter_ind_test = self.filter_known_unknown(testset)
+        self.filter_ind_test = filter_ind_test
+
+        if is_filter:
+            testloader = torch.utils.data.DataLoader(
+                testset, batch_size=batch_size, shuffle=False,
+                num_workers=num_workers, pin_memory=pin_memory,
+                sampler=SubsetRandomSampler(filter_ind_test),
+            )
+        else:
+            testloader = torch.utils.data.DataLoader(
+                testset, batch_size=batch_size, shuffle=False,
+                num_workers=num_workers, pin_memory=pin_memory,
+            )
+
+        self.trainloader = trainloader
+        if is_filter: self.unlabeledloader = unlabeledloader
+        self.testloader = testloader
+        self.num_classes = known_class
+
+    def filter_known_unknown(self, dataset):
+        filter_ind = []
+        for i in range(len(dataset.targets)):
+            c = dataset.targets[i]
+            if c < known_class:
+                filter_ind.append(i)
+        return filter_ind
+
+    def filter_known_unknown_10percent(self, dataset):
+        filter_ind = []
+        unlabeled_ind = []
+        for i in range(len(dataset.targets)):
+            c = dataset.targets[i]
+            if c < known_class:
+                filter_ind.append(i)
+            else:
+                unlabeled_ind.append(i)
+
+        random.shuffle(filter_ind)
+        labeled_ind = filter_ind[:len(filter_ind) * init_percent // 1000]
+        unlabeled_ind = unlabeled_ind + filter_ind[len(filter_ind) * init_percent // 1000:]
+        return labeled_ind, unlabeled_ind
+
+
 __factory = {
-    'mnist': MNIST,
+    'Tiny-Imagenet': TinyImageNet,
     'cifar100': CIFAR100,
     'cifar10': CIFAR10,
 }
