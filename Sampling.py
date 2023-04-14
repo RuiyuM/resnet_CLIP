@@ -39,6 +39,8 @@ def uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, us
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         features, outputs = model(data)
 
         uncertaintyArr += list(
@@ -67,6 +69,8 @@ def certainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         features, outputs = model(data)
 
         certaintyArr += list(
@@ -96,6 +100,8 @@ def Max_AV_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         _, outputs = model(data)
         queryIndex += index
         labelArr += list(np.array(labels.cpu().data))
@@ -130,6 +136,8 @@ def AV_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         _, outputs = model(data)
         queryIndex += index
         labelArr += list(np.array(labels.cpu().data))
@@ -183,6 +191,8 @@ def AV_uncertainty_sampling(args, unlabeledloader, Len_labeled_ind_train, model,
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         _, outputs = model(data)
         queryIndex += index
         labelArr += list(np.array(labels.cpu().data))
@@ -237,6 +247,8 @@ def AV_sampling2(args, labeledloader, unlabeledloader, Len_labeled_ind_train, mo
     for batch_idx, (index, (data, labels)) in enumerate(labeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         _, outputs = model(data)
         # activation value based
         v_ij, predicted = outputs.max(1)
@@ -308,6 +320,8 @@ def VAE_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         queryIndex += index
         labelArr += list(np.array(labels.cpu().data))
 
@@ -350,6 +364,8 @@ def AV_sampling_temperature(args, unlabeledloader, Len_labeled_ind_train, model,
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         _, outputs = model(data)
         # 当前的index 128 个 进入queryIndex array
         queryIndex += index
@@ -421,6 +437,8 @@ def My_query(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         _, outputs = model(data)
         outputs = outputs.cpu().data.numpy()
         test = outputs.T
@@ -899,9 +917,11 @@ def bayesian_generative_active_learning(args, unlabeledloader, Len_labeled_ind_t
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
-
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         with torch.no_grad():
             _, outputs = model(data)
+
 
         queryIndex += list(np.array(index.cpu().data))
         labelArr += list(np.array(labels.cpu().data))
@@ -939,6 +959,8 @@ def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         with torch.no_grad():
             embeddings, outputs = model(data)
         # 当前的index 128 个 进入queryIndex array
@@ -1010,6 +1032,8 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if args.dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
 
         features, outputs = model(data)
         _, predicted = outputs.max(1)

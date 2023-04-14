@@ -166,11 +166,11 @@ def main():
             # Train model A for detecting unknown classes
             train_A(model_A, criterion_xent, criterion_cent,
                     optimizer_model_A, optimizer_centloss,
-                    trainloader_A, invalidList, use_gpu, dataset.num_classes, epoch)
+                    trainloader_A, invalidList, use_gpu, dataset.num_classes, epoch, args.dataset)
             # Train model B for classifying known classes
             train_B(model_B, criterion_xent, criterion_cent,
                     optimizer_model_B, optimizer_centloss,
-                    trainloader_B, use_gpu, dataset.num_classes, epoch)
+                    trainloader_B, use_gpu, dataset.num_classes, epoch, args.dataset)
 
             if args.stepsize > 0:
                 scheduler_A.step()
@@ -178,13 +178,13 @@ def main():
 
             if args.eval_freq > 0 and (epoch + 1) % args.eval_freq == 0 or (epoch + 1) == args.max_epoch:
                 print("==> Test")
-                acc_A, err_A = test(model_A, testloader, use_gpu, dataset.num_classes, epoch)
-                acc_B, err_B = test(model_B, testloader, use_gpu, dataset.num_classes, epoch)
+                acc_A, err_A = test(model_A, testloader, use_gpu, dataset.num_classes, epoch, args.dataset)
+                acc_B, err_B = test(model_B, testloader, use_gpu, dataset.num_classes, epoch, args.dataset)
                 print("Model_A | Accuracy (%): {}\t Error rate (%): {}".format(acc_A, err_A))
                 print("Model_B | Accuracy (%): {}\t Error rate (%): {}".format(acc_B, err_B))
 
         # Record results
-        acc, err = test(model_B, testloader, use_gpu, dataset.num_classes, args.max_epoch)
+        acc, err = test(model_B, testloader, use_gpu, dataset.num_classes, args.max_epoch, args.dataset)
         Acc[query], Err[query] = float(acc), float(err)
         # Query samples and calculate precision and recall
         queryIndex = []
@@ -308,7 +308,7 @@ def calculate_precision_recall():
 
 def train_A(model, criterion_xent, criterion_cent,
             optimizer_model, optimizer_centloss,
-            trainloader, invalidList, use_gpu, num_classes, epoch):
+            trainloader, invalidList, use_gpu, num_classes, epoch, dataset):
     model.train()
     xent_losses = AverageMeter()
     cent_losses = AverageMeter()
@@ -336,6 +336,8 @@ def train_A(model, criterion_xent, criterion_cent,
         if use_gpu:
             # data, labels, T = data.cuda(), labels.cuda(), T.cuda()
             data, labels = data.cuda(), labels.cuda()
+        if dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
 
         features, outputs = model(data)
         # outputs = outputs / T.unsqueeze(1)
@@ -373,7 +375,7 @@ def train_A(model, criterion_xent, criterion_cent,
 
 def train_B(model, criterion_xent, criterion_cent,
             optimizer_model, optimizer_centloss,
-            trainloader, use_gpu, num_classes, epoch):
+            trainloader, use_gpu, num_classes, epoch, dataset):
     model.train()
     xent_losses = AverageMeter()
     cent_losses = AverageMeter()
@@ -385,6 +387,8 @@ def train_B(model, criterion_xent, criterion_cent,
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+        if dataset == 'mnist':
+            data = data.repeat(1, 3, 1, 1)
         features, outputs = model(data)
         loss_xent = criterion_xent(outputs, labels)
         loss_cent = criterion_cent(features, labels)
@@ -423,7 +427,7 @@ def train_B(model, criterion_xent, criterion_cent,
         plot_features(all_features, all_labels, num_classes, epoch, prefix='train')
 
 
-def test(model, testloader, use_gpu, num_classes, epoch):
+def test(model, testloader, use_gpu, num_classes, epoch, dataset):
     model.eval()
     correct, total = 0, 0
     if args.plot:
@@ -433,6 +437,8 @@ def test(model, testloader, use_gpu, num_classes, epoch):
         for index, (data, labels) in testloader:
             if use_gpu:
                 data, labels = data.cuda(), labels.cuda()
+            if dataset == 'mnist':
+                data = data.repeat(1, 3, 1, 1)
             features, outputs = model(data)
             predictions = outputs.data.max(1)[1]
             total += labels.size(0)
