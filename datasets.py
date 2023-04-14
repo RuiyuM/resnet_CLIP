@@ -459,6 +459,40 @@ class CIFAR10(object):
 
 
 # TinyImageNet data set
+class CustomTinyImageNetDataset_train(Dataset):
+    def __init__(self, root='./data/tiny-imagenet-200', split='train', transform=None, invalidList=None):
+        self.tiny_imagenet_dataset = datasets.ImageFolder(f'{root}/{split}', transform=transform)
+
+        if invalidList is not None:
+            targets = np.array(self.tiny_imagenet_dataset.targets)
+            targets[targets >= known_class] = known_class
+            self.tiny_imagenet_dataset.targets = targets.tolist()
+
+    def __getitem__(self, index):
+        data_point, label = self.tiny_imagenet_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(self.tiny_imagenet_dataset)
+
+class CustomTinyImageNetDataset_test(Dataset):
+    tiny_imagenet_dataset = None
+
+    @classmethod
+    def load_dataset(cls, root='./data/tiny-imagenet-200', split='val', transform=None):
+        cls.tiny_imagenet_dataset = datasets.ImageFolder(f'{root}/{split}', transform=transform)
+
+    def __init__(self):
+        if CustomTinyImageNetDataset_test.tiny_imagenet_dataset is None:
+            raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+
+    def __getitem__(self, index):
+        data_point, label = CustomTinyImageNetDataset_test.tiny_imagenet_dataset[index]
+        return index, (data_point, label)
+
+    def __len__(self):
+        return len(CustomTinyImageNetDataset_test.tiny_imagenet_dataset)
+
 
 class TinyImageNet(object):
     def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
