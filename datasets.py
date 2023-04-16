@@ -1,3 +1,6 @@
+import os
+import glob
+from PIL import Image
 import numpy as np
 import torch
 import torchvision
@@ -459,14 +462,76 @@ class CIFAR10(object):
 
 
 # TinyImageNet data set
+# def load_tiny_imagenet_train(root):
+#     target = []
+#     class_id_mapping = {}
+#     id_to_class = {}
+#
+#     # Load the wnids.txt file containing class ids
+#     with open(os.path.join(root, 'wnids.txt'), 'r') as f:
+#         class_ids = [line.strip() for line in f.readlines()]
+#
+#     # Create a mapping of class ids to label numbers (0-199)
+#     for i, class_id in enumerate(class_ids):
+#         class_id_mapping[class_id] = i
+#         id_to_class[i] = class_id
+#
+#     # Iterate over the train folder to get the images and their labels
+#     for class_id, label in class_id_mapping.items():
+#         class_folder = os.path.join(root, 'train', class_id)
+#         image_files = glob.glob(os.path.join(class_folder, 'images', '*.JPEG'))
+#
+#         for image_file in image_files:
+#             # Open the image to check if it's a valid image
+#             try:
+#                 img = Image.open(image_file)
+#                 img.verify()  # Verify if it's a valid image
+#                 target.append(label)
+#             except Exception as e:
+#                 print(f"Invalid image: {image_file} - {e}")
+#
+#     return target
+#
+# def load_tiny_imagenet_test(root):
+#     target = []
+#     class_id_mapping = {}
+#     id_to_class = {}
+#
+#     # Load the wnids.txt file containing class ids
+#     with open(os.path.join(root, 'wnids.txt'), 'r') as f:
+#         class_ids = [line.strip() for line in f.readlines()]
+#
+#     # Create a mapping of class ids to label numbers (0-199)
+#     for i, class_id in enumerate(class_ids):
+#         class_id_mapping[class_id] = i
+#         id_to_class[i] = class_id
+#
+#     # Load the val_annotations.txt file
+#     val_annotations = os.path.join(root, 'val', 'val_annotations.txt')
+#
+#     # Iterate over the val_annotations.txt file to get the images and their labels
+#     with open(val_annotations, 'r') as f:
+#         for line in f.readlines():
+#             parts = line.strip().split('\t')
+#             image_file, class_id = parts[0], parts[1]
+#             label = class_id_mapping[class_id]
+#             target.append(label)
+#
+#     return target
+
+
+
+
 class CustomTinyImageNetDataset_train(Dataset):
-    def __init__(self, root='./data/tiny-imagenet-200', split='train', transform=None, invalidList=None):
-        self.tiny_imagenet_dataset = datasets.ImageFolder(f'{root}/{split}', transform=transform)
+    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True, transform=None, invalidList=None):
+        self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
+                                                          transform=transform)
+        self.targets = self.tiny_imagenet_dataset.targets
 
         if invalidList is not None:
-            targets = np.array(self.tiny_imagenet_dataset.targets)
+            targets = np.array(self.targets)
             targets[targets >= known_class] = known_class
-            self.tiny_imagenet_dataset.targets = targets.tolist()
+            self.targets = targets.tolist()
 
     def __getitem__(self, index):
         data_point, label = self.tiny_imagenet_dataset[index]
@@ -477,11 +542,12 @@ class CustomTinyImageNetDataset_train(Dataset):
 
 class CustomTinyImageNetDataset_test(Dataset):
     tiny_imagenet_dataset = None
+    targets = None
 
     @classmethod
     def load_dataset(cls, root='./data/tiny-imagenet-200', split='val', transform=None):
         cls.tiny_imagenet_dataset = datasets.ImageFolder(f'{root}/{split}', transform=transform)
-
+        cls.targets = cls.tiny_imagenet_dataset.targets
     def __init__(self):
         if CustomTinyImageNetDataset_test.tiny_imagenet_dataset is None:
             raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
@@ -496,7 +562,7 @@ class CustomTinyImageNetDataset_test(Dataset):
 
 class TinyImageNet(object):
     def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
-                 labeled_ind_train=None):
+                 labeled_ind_train=None, invalidList=None):
         transform = transforms.Compose([
             transforms.Resize(32),
             transforms.CenterCrop(32),
@@ -578,8 +644,8 @@ class TinyImageNet(object):
                 unlabeled_ind.append(i)
 
         random.shuffle(filter_ind)
-        labeled_ind = filter_ind[:len(filter_ind) * init_percent // 1000]
-        unlabeled_ind = unlabeled_ind + filter_ind[len(filter_ind) * init_percent // 1000:]
+        labeled_ind = filter_ind[:len(filter_ind) * init_percent // 100]
+        unlabeled_ind = unlabeled_ind + filter_ind[len(filter_ind) * init_percent // 100:]
         return labeled_ind, unlabeled_ind
 
 
@@ -598,8 +664,10 @@ def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, 
     random.seed(SEED)
     known_class = known_class_
     init_percent = init_percent_
-
+    # target_train = load_tiny_imagenet_train('./data/tiny-imagenet-200')
+    # target_test = load_tiny_imagenet_test('./data/tiny-imagenet-200')
     if name not in __factory.keys():
         raise KeyError("Unknown dataset: {}".format(name))
+
     return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train, labeled_ind_train,
                            invalidList)
