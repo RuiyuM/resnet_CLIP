@@ -5,7 +5,7 @@ import datetime
 import time
 import os.path as osp
 import matplotlib
-
+import re
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import numpy as np
@@ -253,7 +253,7 @@ def main():
                                                                                                   len(labeled_ind_train), model_A, use_gpu)
 
         # Update labeled, unlabeled and invalid set
-        unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex))
+        unlabeled_ind_train = list(set(unlabeled_ind_train) - set(queryIndex) - set(invalidIndex))
         labeled_ind_train = list(labeled_ind_train) + list(queryIndex)
         invalidList = list(invalidList) + list(invalidIndex)
 
@@ -427,18 +427,61 @@ def train_B(model, criterion_xent, criterion_cent,
         plot_features(all_features, all_labels, num_classes, epoch, prefix='train')
 
 
+def get_image_label(index, dataset):
+    if index < 0 or index >= len(dataset):
+        raise ValueError("Invalid index: must be between 0 and {} (inclusive).".format(len(dataset) - 1))
+
+    _, (_, label) = dataset[index]
+    return label
+
+def parse_val_annotations_index(root):
+    annotation_file = os.path.join(root, "val", "val_annotations.txt")
+    image_to_label = {}
+    with open(annotation_file, "r") as f:
+        for line in f.readlines():
+            parts = line.strip().split("\t")
+            image_number = int(re.search(r'\d+', parts[0]).group())
+            image_to_label[image_number] = parts[1]
+    return image_to_label
+
+def parse_val_annotations(root):
+    annotation_file = os.path.join(root, "val", "val_annotations.txt")
+    image_to_label = {}
+    with open(annotation_file, "r") as f:
+        for line in f.readlines():
+            parts = line.strip().split("\t")
+            image_to_label[parts[0]] = parts[1]
+    return image_to_label
+
 def test(model, testloader, use_gpu, num_classes, epoch, dataset):
     model.eval()
     correct, total = 0, 0
     if args.plot:
         all_features, all_labels = [], []
-
+    # especially for loading tinyimage net
+    if dataset == 'Tiny-Imagenet':
+        root = './data/tiny-imagenet-200'
+        index_to_label = parse_val_annotations_index(root)
+        image_to_label = parse_val_annotations(root)
+        label_to_index = {label: index for index, label in enumerate(sorted(set(image_to_label.values())))}
+        # label_to_index = {label: index for index, label in enumerate(sorted(set(image_to_label.values())))}
+    #
     with torch.no_grad():
-        for index, (data, labels) in testloader:
+        for batch_idx, (index, (data, labels)) in enumerate(testloader):
             if use_gpu:
                 data, labels = data.cuda(), labels.cuda()
-            if dataset == 'mnist':
-                data = data.repeat(1, 3, 1, 1)
+
+            if dataset == 'Tiny-Imagenet':  # Add this condition to handle Tiny ImageNet dataset
+                labels = []
+                for i in range(len(index)):
+                    labels_in_tiny_format = index_to_label[index[i].item()]
+                    true_label = label_to_index[labels_in_tiny_format]
+                    labels.append(true_label)
+                if use_gpu:
+                    labels_tensor = torch.tensor(labels, dtype=torch.long)  # Convert the list to a PyTorch tensor
+                    labels = labels_tensor.cuda()
+
+            # print("Batch:", batch_idx, "Labels:", labels)  # Add this line to print labels
             features, outputs = model(data)
             predictions = outputs.data.max(1)[1]
             total += labels.size(0)

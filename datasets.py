@@ -520,13 +520,43 @@ class CIFAR10(object):
 #     return target
 
 
+def load_tiny_imagenet_train(root):
+    target = []
+    class_id_mapping = {}
+    id_to_class = {}
 
+    # Load the wnids.txt file containing class ids
+    with open(os.path.join(root, 'wnids.txt'), 'r') as f:
+        class_ids = [line.strip() for line in f.readlines()]
+
+    # Create a mapping of class ids to label numbers (0-199)
+    root = './data/tiny-imagenet-200'
+    # index_to_label = parse_val_annotations_index(root)
+    image_to_label = parse_val_annotations(root)
+    label_to_index = {label: index for index, label in enumerate(sorted(set(image_to_label.values())))}
+    # Iterate over the train folder to get the images and their labels
+    for class_id, label in label_to_index.items():
+        class_folder = os.path.join(root, 'train', class_id)
+        image_files = glob.glob(os.path.join(class_folder, 'images', '*.JPEG'))
+
+        for image_file in image_files:
+            # Open the image to check if it's a valid image
+            try:
+                img = Image.open(image_file)
+                img.verify()  # Verify if it's a valid image
+                target.append(label)
+            except Exception as e:
+                print(f"Invalid image: {image_file} - {e}")
+
+    return target
 
 class CustomTinyImageNetDataset_train(Dataset):
     def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True, transform=None, invalidList=None):
         self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
                                                           transform=transform)
         self.targets = self.tiny_imagenet_dataset.targets
+
+
 
         if invalidList is not None:
             targets = np.array(self.targets)
@@ -535,29 +565,105 @@ class CustomTinyImageNetDataset_train(Dataset):
 
     def __getitem__(self, index):
         data_point, label = self.tiny_imagenet_dataset[index]
+        # data_point, _ = self.tiny_imagenet_dataset[index]
+        # label = self.targets[index]
         return index, (data_point, label)
 
     def __len__(self):
         return len(self.tiny_imagenet_dataset)
 
+# def parse_val_annotations(root):
+#     val_annotations_file = os.path.join(root, 'val', 'val_annotations.txt')
+#     with open(val_annotations_file, 'r') as f:
+#         lines = f.readlines()
+#     image_to_label = {}
+#     for line in lines:
+#         parts = line.strip().split('\t')
+#         image_file, label = parts[0], parts[1]
+#         image_to_label[image_file] = label
+#     return image_to_label
+#
+# class CustomTinyImageNetDataset_test(Dataset):
+#     tiny_imagenet_dataset = None
+#     targets = None
+#     image_to_label = None
+#     label_to_index = None
+#
+#     @classmethod
+#     def load_dataset(cls, root='./data/tiny-imagenet-200', split='val', transform=None):
+#         cls.image_to_label = parse_val_annotations(root)
+#         cls.tiny_imagenet_dataset = datasets.ImageFolder(f'{root}/{split}', transform=transform)
+#         cls.label_to_index = {label: index for index, label in enumerate(sorted(set(cls.image_to_label.values())))}
+#         cls.targets = [cls.label_to_index[cls.image_to_label[os.path.basename(img_file)]] for img_file, _ in cls.tiny_imagenet_dataset.imgs]
+#
+#     def __init__(self):
+#         if CustomTinyImageNetDataset_test.tiny_imagenet_dataset is None:
+#             raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
+#
+#     def __getitem__(self, index):
+#         data_point, _ = CustomTinyImageNetDataset_test.tiny_imagenet_dataset[index]
+#         label = CustomTinyImageNetDataset_test.targets[index]
+#         return index, (data_point, label)
+#
+#     def __len__(self):
+#         return len(CustomTinyImageNetDataset_test.tiny_imagenet_dataset)
+
 class CustomTinyImageNetDataset_test(Dataset):
     tiny_imagenet_dataset = None
     targets = None
+    image_to_label = None
+    label_to_index = None
 
     @classmethod
     def load_dataset(cls, root='./data/tiny-imagenet-200', split='val', transform=None):
+        cls.image_to_label = parse_val_annotations(root)
         cls.tiny_imagenet_dataset = datasets.ImageFolder(f'{root}/{split}', transform=transform)
-        cls.targets = cls.tiny_imagenet_dataset.targets
+        cls.label_to_index = {label: index for index, label in enumerate(sorted(set(cls.image_to_label.values())))}
+
+        # Custom sorting function to sort images by their numerical part
+        def sort_key(item):
+            file_name = os.path.basename(item[0])
+            file_number = int(file_name.split('.')[0].split('_')[1])
+            return file_number
+
+        # Sort the images by their file names using the custom sorting function
+        cls.tiny_imagenet_dataset.imgs.sort(key=sort_key)
+
+        cls.targets = []
+        for img_file, _ in cls.tiny_imagenet_dataset.imgs:
+            img_base_name = os.path.basename(img_file)
+            img_label = cls.image_to_label[img_base_name]
+            img_index = cls.label_to_index[img_label]
+            cls.targets.append(img_index)
+
     def __init__(self):
         if CustomTinyImageNetDataset_test.tiny_imagenet_dataset is None:
             raise RuntimeError("Dataset not loaded. Call load_dataset() before creating instances of this class.")
 
     def __getitem__(self, index):
-        data_point, label = CustomTinyImageNetDataset_test.tiny_imagenet_dataset[index]
+        # data_point, label = CustomTinyImageNetDataset_test.targets[index]
+        data_point, _ = CustomTinyImageNetDataset_test.tiny_imagenet_dataset[index]
+        label = CustomTinyImageNetDataset_test.targets[index]
         return index, (data_point, label)
 
     def __len__(self):
         return len(CustomTinyImageNetDataset_test.tiny_imagenet_dataset)
+
+def parse_val_annotations(root):
+    annotation_file = os.path.join(root, "val", "val_annotations.txt")
+    image_to_label = {}
+    with open(annotation_file, "r") as f:
+        for line in f.readlines():
+            parts = line.strip().split("\t")
+            image_to_label[parts[0]] = parts[1]
+    return image_to_label
+
+def get_image_label(index, dataset):
+    if index < 0 or index >= len(dataset):
+        raise ValueError("Invalid index: must be between 0 and {} (inclusive).".format(len(dataset) - 1))
+
+    _, (_, label) = dataset[index]
+    return label
 
 
 class TinyImageNet(object):
