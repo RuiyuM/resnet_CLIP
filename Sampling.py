@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.mixture import GaussianMixture
 import torch
-
+from scipy.spatial.distance import euclidean
 import torch.nn.functional as F
 from collections import Counter
 from torch.nn.functional import softmax
@@ -1021,68 +1021,116 @@ def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
 
     return final_chosen_index, invalid_index, precision, recall
 
-def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, tail_size=20):
-    model.eval()
 
-    # Calculate MAVs and Weibull parameters
-    mavs = []
-    weibull_params = []
-    activation_vectors = [[] for _ in range(args.known_class + 1)]
+def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model,criterion_cent, use_gpu, openmax_beta=0.5):
+    model.eval()
+    queryIndex = []
+    labelArr = []
+    uncertainty_scores = []
+
+    def compute_openmax_score(proba_out, distances, beta=openmax_beta):
+        scores = (1 - proba_out) * np.exp(-beta * distances)
+        return np.sum(scores, axis=1)
 
     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
         if args.dataset == 'mnist':
             data = data.repeat(1, 3, 1, 1)
+        with torch.no_grad():
+            features, outputs = model(data)
 
-        features, outputs = model(data)
+        queryIndex += list(np.array(index.cpu().data))
+        labelArr += list(np.array(labels.cpu().data))
+
         _, predicted = outputs.max(1)
+        proba_out = softmax(outputs, dim=1)
+        proba_out = torch.gather(proba_out, 1, predicted.unsqueeze(1))
 
-        for i, label in enumerate(predicted):
-            # if label.item() < args.known_class:
-            activation_vectors[label.item()].append(features[i].detach().cpu().numpy())
+        distances = np.array([euclidean(features[i].cpu().detach().numpy(),
+                                        criterion_cent.centers[predicted[i].cpu()].cpu().detach().numpy())
+                              for i in range(features.size(0))])
 
-    for i in range(args.known_class + 1):
-        if activation_vectors[i]:
-            mavs.append(np.mean(activation_vectors[i], axis=0))
-            weibull_params.append(fit_weibull(mavs[i], activation_vectors[i], tail_size))
-        else:
-            mavs.append(np.array([0.01, 0.01]))
+        uncertainty = compute_openmax_score(proba_out.cpu().numpy(), distances, openmax_beta)
+        uncertainty_scores += list(uncertainty)
 
-            XB = np.array((0.01, 0.01)).reshape((1, 2))
+    uncertainty_scores = np.array(uncertainty_scores)
+    sorted_indices = np.argsort(-uncertainty_scores)
+    selected_indices = sorted_indices[:args.query_batch]
 
-            weibull_params.append(fit_weibull(mavs[i], XB, tail_size))
+    query_indices = np.array(queryIndex)[selected_indices]
+    query_labels = np.array(labelArr)[selected_indices]
 
-    # Perform OpenMax sampling
-    queryIndex = []
-    labelArr = []
-    openmax_scores = []
+    known_indices = query_indices[query_labels < args.known_class]
+    unknown_indices = query_indices[query_labels >= args.known_class]
 
-    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
-        if use_gpu:
-            data, labels = data.cuda(), labels.cuda()
+    precision = len(known_indices) / len(query_indices)
+    recall = (len(known_indices) + Len_labeled_ind_train) / (
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
 
-        features, outputs = model(data)
-        _, predicted = outputs.max(1)
-
-        for i, (feature, label) in enumerate(zip(features, labels)):
-            openmax_score = openmax(args.known_class, mavs, weibull_params, feature.detach().cpu().numpy(), tail_size)
-            queryIndex.append(index[i])
-            labelArr.append(label.item())
-            openmax_scores.append(openmax_score)
-
-    # Select samples based on OpenMax scores
-    sorted_indices = np.argsort(openmax_scores)[::-1]
-    queryIndex = np.array(queryIndex)[sorted_indices]
-    labelArr = np.array(labelArr)[sorted_indices]
-
-    queryLabelArr = labelArr[-args.query_batch:]
-    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
-    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
-            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
-
-    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
-        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
+    return known_indices, unknown_indices, precision, recall
+# def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, tail_size=20):
+#     model.eval()
+#
+#     # Calculate MAVs and Weibull parameters
+#     mavs = []
+#     weibull_params = []
+#     activation_vectors = [[] for _ in range(args.known_class + 1)]
+#
+#     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+#         if use_gpu:
+#             data, labels = data.cuda(), labels.cuda()
+#         if args.dataset == 'mnist':
+#             data = data.repeat(1, 3, 1, 1)
+#
+#         features, outputs = model(data)
+#         _, predicted = outputs.max(1)
+#
+#         for i, label in enumerate(predicted):
+#             # if label.item() < args.known_class:
+#             activation_vectors[label.item()].append(features[i].detach().cpu().numpy())
+#
+#     for i in range(args.known_class + 1):
+#         if activation_vectors[i]:
+#             mavs.append(np.mean(activation_vectors[i], axis=0))
+#             weibull_params.append(fit_weibull(mavs[i], activation_vectors[i], tail_size))
+#         else:
+#             mavs.append(np.array([0.01, 0.01]))
+#
+#             XB = np.array((0.01, 0.01)).reshape((1, 2))
+#
+#             weibull_params.append(fit_weibull(mavs[i], XB, tail_size))
+#
+#     # Perform OpenMax sampling
+#     queryIndex = []
+#     labelArr = []
+#     openmax_scores = []
+#
+#     for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+#         if use_gpu:
+#             data, labels = data.cuda(), labels.cuda()
+#
+#         features, outputs = model(data)
+#         _, predicted = outputs.max(1)
+#
+#         for i, (feature, label) in enumerate(zip(features, labels)):
+#             openmax_score = openmax(args.known_class, mavs, weibull_params, feature.detach().cpu().numpy(), tail_size)
+#             queryIndex.append(index[i])
+#             labelArr.append(label.item())
+#             openmax_scores.append(openmax_score)
+#
+#     # Select samples based on OpenMax scores
+#     sorted_indices = np.argsort(openmax_scores)[::-1]
+#     queryIndex = np.array(queryIndex)[sorted_indices]
+#     labelArr = np.array(labelArr)[sorted_indices]
+#
+#     queryLabelArr = labelArr[-args.query_batch:]
+#     precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+#     recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
+#             len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+#
+#     return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
+#         np.where(queryLabelArr >= args.known_class)[0]], precision, recall
 
 
 from scipy.spatial.distance import cdist
@@ -1100,26 +1148,26 @@ def fit_weibull(mav, activation_vectors, tail_size):
     return weibull_params
 
 
-def openmax(class_count, mavs, weibull_params, feature, tail_size, alpha=10):
-    mavs = np.array(mavs)  # Convert mavs list to a numpy array
-    distances = np.linalg.norm(mavs - feature, axis=1)  # Compute Euclidean distances element-wise
-    softmax_outputs = np.exp(-distances) / np.sum(np.exp(-distances))
-
-    # Compute OpenMax probabilities
-    weibull_probs = []
-    for i in range(class_count):
-        weibull_cdf = weibull_min.cdf(distances[i], weibull_params[i]['shape'], loc=weibull_params[i]['loc'],
-                                      scale=weibull_params[i]['scale'])
-        weibull_prob = 1 - weibull_cdf
-        weibull_probs.append(weibull_prob)
-
-    unknown_prob = 1 - np.sum(weibull_probs)
-    weibull_probs.append(unknown_prob)
-    openmax_probs = np.multiply(softmax_outputs, weibull_probs)
-
-    # Adjust the probabilities to include the unknown class
-    if unknown_prob > 0:
-        openmax_probs = (1 - alpha * unknown_prob) * openmax_probs
-        openmax_probs = np.append(openmax_probs, alpha * unknown_prob)
-
-    return openmax_probs[-1]  # Return the probability of the sample belonging to the unknown class
+# def openmax(class_count, mavs, weibull_params, feature, tail_size, alpha=10):
+#     mavs = np.array(mavs)  # Convert mavs list to a numpy array
+#     distances = np.linalg.norm(mavs - feature, axis=1)  # Compute Euclidean distances element-wise
+#     softmax_outputs = np.exp(-distances) / np.sum(np.exp(-distances))
+#
+#     # Compute OpenMax probabilities
+#     weibull_probs = []
+#     for i in range(class_count):
+#         weibull_cdf = weibull_min.cdf(distances[i], weibull_params[i]['shape'], loc=weibull_params[i]['loc'],
+#                                       scale=weibull_params[i]['scale'])
+#         weibull_prob = 1 - weibull_cdf
+#         weibull_probs.append(weibull_prob)
+#
+#     unknown_prob = 1 - np.sum(weibull_probs)
+#     weibull_probs.append(unknown_prob)
+#     openmax_probs = np.multiply(softmax_outputs, weibull_probs)
+#
+#     # Adjust the probabilities to include the unknown class
+#     if unknown_prob > 0:
+#         openmax_probs = (1 - alpha * unknown_prob) * openmax_probs
+#         openmax_probs = np.append(openmax_probs, alpha * unknown_prob)
+#
+#     return openmax_probs[-1]  # Return the probability of the sample belonging to the unknown class

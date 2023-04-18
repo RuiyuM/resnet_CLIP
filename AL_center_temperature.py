@@ -242,7 +242,7 @@ def main():
                                                                                                   len(labeled_ind_train), model_A, use_gpu)
         elif args.query_strategy == "OpenMax":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.openmax_sampling(args, unlabeledloader,
-                                                                                                  len(labeled_ind_train), model_A, use_gpu)
+                                                                                                  len(labeled_ind_train), model_A, criterion_cent, use_gpu)
 
         elif args.query_strategy == "Core_set":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.core_set(args, unlabeledloader,
