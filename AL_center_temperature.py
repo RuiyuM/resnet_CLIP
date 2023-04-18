@@ -289,8 +289,11 @@ def main():
         pickle.dump(data, f)
     f.close()
     ## Save model
+    save_directory = "save_model"
+    if not os.path.exists(save_directory):
+        os.makedirs(save_directory)
     if args.is_mini:
-        torch.save(model_B,
+         torch.save(model_B,
                    "save_model/AL_center_" + args.dataset + "30_mini_query" + str(args.max_query) + "_batch" + str(
                        args.query_batch) + ".pt")
     else:
