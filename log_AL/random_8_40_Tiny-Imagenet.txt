@@ -1,0 +1,40 @@
+Currently using GPU: 0
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: resnet18
+==> Test
+Model_A | Accuracy (%): 4.450000286102295	 Error rate (%): 95.55000305175781
+Model_B | Accuracy (%): 4.75	 Error rate (%): 95.25
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 257 | Query Precision: 0.17133333333333334 | Query Recall: 0.09285 | Training Nums: 1857 | Unalebled Nums: 96900
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 4.200000286102295	 Error rate (%): 95.80000305175781
+Model_B | Accuracy (%): 4.900000095367432	 Error rate (%): 95.0999984741211
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 284 | Query Precision: 0.18933333333333333 | Query Recall: 0.10705 | Training Nums: 2141 | Unalebled Nums: 95400
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 4.25	 Error rate (%): 95.75
+Model_B | Accuracy (%): 4.75	 Error rate (%): 95.25
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 298 | Query Precision: 0.19866666666666666 | Query Recall: 0.12195 | Training Nums: 2439 | Unalebled Nums: 93900
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 5.350000381469727	 Error rate (%): 94.6500015258789
+Model_B | Accuracy (%): 6.050000190734863	 Error rate (%): 93.94999694824219
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 299 | Query Precision: 0.19933333333333333 | Query Recall: 0.1369 | Training Nums: 2738 | Unalebled Nums: 92400
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 5.750000476837158	 Error rate (%): 94.25
+Model_B | Accuracy (%): 4.400000095367432	 Error rate (%): 95.5999984741211
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 291 | Query Precision: 0.194 | Query Recall: 0.15145 | Training Nums: 3029 | Unalebled Nums: 90900
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 4.400000095367432	 Error rate (%): 95.5999984741211
+Model_B | Accuracy (%): 5.0	 Error rate (%): 95.0
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 303 | Query Precision: 0.202 | Query Recall: 0.1666 | Training Nums: 3332 | Unalebled Nums: 89400
+openset here!
+openset here!

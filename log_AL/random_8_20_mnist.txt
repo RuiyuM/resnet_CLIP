@@ -1,0 +1,33 @@
+Currently using GPU: 0
+Creating dataset: mnist
+openset here!
+Creating model: resnet18
+  0%|          | 0/10 [00:00<?, ?it/s]
+  0%|          | 0/100 [00:00<?, ?it/s][A  0%|          | 0/100 [00:00<?, ?it/s]
+  0%|          | 0/10 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "AL_center_temperature.py", line 494, in <module>
+    main()
+  File "AL_center_temperature.py", line 167, in main
+    train_A(model_A, criterion_xent, criterion_cent,
+  File "AL_center_temperature.py", line 340, in train_A
+    features, outputs = model(data)
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/parallel/data_parallel.py", line 166, in forward
+    return self.module(*inputs[0], **kwargs[0])
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ruiyu/baseline/resnet_CLIP/resnet.py", line 119, in forward
+    output = self.conv1(x)
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/modules/container.py", line 139, in forward
+    input = module(input)
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/modules/conv.py", line 457, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/ruiyu/.conda/envs/Ruiyu_1/lib/python3.8/site-packages/torch/nn/modules/conv.py", line 453, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: Given groups=1, weight of size [64, 3, 3, 3], expected input[128, 1, 28, 28] to have 3 channels, but got 1 channels instead
