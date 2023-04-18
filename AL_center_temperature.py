@@ -151,6 +151,7 @@ def main():
 
         criterion_xent = nn.CrossEntropyLoss()
         criterion_cent = CenterLoss(num_classes=dataset.num_classes, feat_dim=2, use_gpu=use_gpu)
+        criterion_cent_special = CenterLoss(num_classes=dataset.num_classes + 1, feat_dim=2, use_gpu=use_gpu)
         optimizer_model_A = torch.optim.SGD(model_A.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
         optimizer_model_B = torch.optim.SGD(model_B.parameters(), lr=args.lr_model, weight_decay=5e-04, momentum=0.9)
         optimizer_centloss = torch.optim.SGD(criterion_cent.parameters(), lr=args.lr_cent)
@@ -242,7 +243,7 @@ def main():
                                                                                                   len(labeled_ind_train), model_A, use_gpu)
         elif args.query_strategy == "OpenMax":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.openmax_sampling(args, unlabeledloader,
-                                                                                                  len(labeled_ind_train), model_A, criterion_cent, use_gpu)
+                                                                                                  len(labeled_ind_train), model_A, criterion_cent_special, use_gpu)
 
         elif args.query_strategy == "Core_set":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.core_set(args, unlabeledloader,
