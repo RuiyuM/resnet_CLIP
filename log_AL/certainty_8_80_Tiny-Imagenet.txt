@@ -1,0 +1,65 @@
+Currently using GPU: 0
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: resnet18
+==> Test
+Model_A | Accuracy (%): 1.9250000715255737	 Error rate (%): 98.07499694824219
+Model_B | Accuracy (%): 1.9500000476837158	 Error rate (%): 98.05000305175781
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 559 | Query Precision: 0.37266666666666665 | Query Recall: 0.093975 | Training Nums: 3759 | Unalebled Nums: 95300
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.5750000476837158	 Error rate (%): 98.42500305175781
+Model_B | Accuracy (%): 1.8250000476837158	 Error rate (%): 98.17500305175781
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 585 | Query Precision: 0.39 | Query Recall: 0.1086 | Training Nums: 4344 | Unalebled Nums: 93800
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.475000023841858	 Error rate (%): 98.5250015258789
+Model_B | Accuracy (%): 2.0	 Error rate (%): 98.0
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 572 | Query Precision: 0.38133333333333336 | Query Recall: 0.1229 | Training Nums: 4916 | Unalebled Nums: 92300
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.6750000715255737	 Error rate (%): 98.32499694824219
+Model_B | Accuracy (%): 1.9500000476837158	 Error rate (%): 98.05000305175781
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 601 | Query Precision: 0.40066666666666667 | Query Recall: 0.137925 | Training Nums: 5517 | Unalebled Nums: 90800
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.5500000715255737	 Error rate (%): 98.44999694824219
+Model_B | Accuracy (%): 2.3000001907348633	 Error rate (%): 97.69999694824219
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 556 | Query Precision: 0.37066666666666664 | Query Recall: 0.151825 | Training Nums: 6073 | Unalebled Nums: 89300
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.6500000953674316	 Error rate (%): 98.3499984741211
+Model_B | Accuracy (%): 1.7750000953674316	 Error rate (%): 98.2249984741211
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 583 | Query Precision: 0.38866666666666666 | Query Recall: 0.1664 | Training Nums: 6656 | Unalebled Nums: 87800
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.725000023841858	 Error rate (%): 98.2750015258789
+Model_B | Accuracy (%): 1.9000000953674316	 Error rate (%): 98.0999984741211
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 587 | Query Precision: 0.3913333333333333 | Query Recall: 0.181075 | Training Nums: 7243 | Unalebled Nums: 86300
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.6750000715255737	 Error rate (%): 98.32499694824219
+Model_B | Accuracy (%): 2.3500001430511475	 Error rate (%): 97.6500015258789
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 520 | Query Precision: 0.3466666666666667 | Query Recall: 0.194075 | Training Nums: 7763 | Unalebled Nums: 84800
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.9000000953674316	 Error rate (%): 98.0999984741211
+Model_B | Accuracy (%): 1.7750000953674316	 Error rate (%): 98.2249984741211
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 594 | Query Precision: 0.396 | Query Recall: 0.208925 | Training Nums: 8357 | Unalebled Nums: 83300
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 1.9250000715255737	 Error rate (%): 98.07499694824219
+Model_B | Accuracy (%): 2.125	 Error rate (%): 97.875
+Query Strategy: certainty | Query Batch: 1500 | Valid Query Nums: 549 | Query Precision: 0.366 | Query Recall: 0.22265 | Training Nums: 8906 | Unalebled Nums: 81800
+openset here!
+openset here!
+Finished. Total elapsed time (h:m:s): 7:27:29
