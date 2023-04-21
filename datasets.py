@@ -551,10 +551,12 @@ def load_tiny_imagenet_train(root):
     return target
 
 class CustomTinyImageNetDataset_train(Dataset):
-    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True, transform=None, invalidList=None):
+    def __init__(self, root='./data/tiny-imagenet-200', train=True, download=True,target_train=None, transform=None, invalidList=None):
         self.tiny_imagenet_dataset = datasets.ImageFolder(os.path.join(root, 'train' if train else 'val'),
                                                           transform=transform)
-        self.targets = self.tiny_imagenet_dataset.targets
+        self.targets = target_train
+
+
 
 
 
@@ -564,9 +566,10 @@ class CustomTinyImageNetDataset_train(Dataset):
             self.targets = targets.tolist()
 
     def __getitem__(self, index):
-        data_point, label = self.tiny_imagenet_dataset[index]
+        data_point, _ = self.tiny_imagenet_dataset[index]
         # data_point, _ = self.tiny_imagenet_dataset[index]
         # label = self.targets[index]
+        label = self.targets[index]
         return index, (data_point, label)
 
     def __len__(self):
@@ -667,18 +670,19 @@ def get_image_label(index, dataset):
 
 
 class TinyImageNet(object):
-    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train=None,
+    def __init__(self, batch_size, use_gpu, num_workers, is_filter, is_mini ,target_train, unlabeled_ind_train=None,
                  labeled_ind_train=None, invalidList=None):
         transform = transforms.Compose([
-            transforms.Resize(32),
-            transforms.CenterCrop(32),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.RandomCrop(64, padding=4, padding_mode='reflect'),
+            transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
         pin_memory = True if use_gpu else False
 
-        trainset = CustomTinyImageNetDataset_train(transform=transform)
+        trainset = CustomTinyImageNetDataset_train(transform=transform, target_train=target_train)
 
         if unlabeled_ind_train is None and labeled_ind_train is None:
             if is_mini:
@@ -770,10 +774,13 @@ def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, 
     random.seed(SEED)
     known_class = known_class_
     init_percent = init_percent_
-    # target_train = load_tiny_imagenet_train('./data/tiny-imagenet-200')
+    target_train = load_tiny_imagenet_train('./data/tiny-imagenet-200')
     # target_test = load_tiny_imagenet_test('./data/tiny-imagenet-200')
     if name not in __factory.keys():
         raise KeyError("Unknown dataset: {}".format(name))
-
-    return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train, labeled_ind_train,
+    if name == 'Tiny-Imagenet':
+        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini,target_train , unlabeled_ind_train, labeled_ind_train,
+                           invalidList)
+    else:
+        return __factory[name](batch_size, use_gpu, num_workers, is_filter, is_mini, unlabeled_ind_train, labeled_ind_train,
                            invalidList)
