@@ -1,0 +1,16 @@
+Currently using GPU: 0
+Creating dataset: mnist
+openset here!
+Creating model: resnet18
+==> Test
+Model_A | Accuracy (%): 14.579999923706055	 Error rate (%): 85.41999816894531
+Model_B | Accuracy (%): 18.719999313354492	 Error rate (%): 81.27999877929688
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 1500 | Query Precision: 1.0 | Query Recall: 0.026 | Training Nums: 1560 | Unalebled Nums: 58440
+openset here!
+openset here!
+==> Test
+Model_A | Accuracy (%): 93.47999572753906	 Error rate (%): 6.5200042724609375
+Model_B | Accuracy (%): 94.1199951171875	 Error rate (%): 5.8800048828125
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 1500 | Query Precision: 1.0 | Query Recall: 0.051 | Training Nums: 3060 | Unalebled Nums: 56940
+openset here!
+openset here!
