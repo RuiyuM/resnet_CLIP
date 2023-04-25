@@ -10,6 +10,7 @@ from torch.utils.data import Dataset
 from torchvision import datasets
 import random
 import transforms
+from AL_center_temperature import set_seed
 
 known_class = -1
 init_percent = -1
@@ -769,9 +770,7 @@ __factory = {
 def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, is_filter, is_mini, SEED,
            unlabeled_ind_train=None, labeled_ind_train=None, invalidList=None):
     global known_class, init_percent
-    torch.manual_seed(SEED)
-    np.random.seed(SEED)
-    random.seed(SEED)
+    set_seed(SEED)
     known_class = known_class_
     init_percent = init_percent_
     target_train = load_tiny_imagenet_train('./data/tiny-imagenet-200')
