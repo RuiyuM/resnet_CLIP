@@ -934,7 +934,7 @@ def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index
 
             if neighbor_labels < args.known_class:
 
-                knn_labels_cnt[neighbor_labels] += 1.0
+                knn_labels_cnt[neighbor_labels] += test_variable_1
 
 
         score = F.cross_entropy(knn_labels_cnt, predicted_prob, reduction='mean')
