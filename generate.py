@@ -1,6 +1,6 @@
 import os
 
-sampling_methods = ['random', 'uncertainty', "BGADL", "OpenMax", "Core_set", 'certainty']
+sampling_methods = ['random', 'uncertainty', "BGADL", "OpenMax", "Core_set", 'certainty', "AV_temperature"]
 
 datasets = {'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40, 60, 80]},
             'cifar100': {'init_percent': 8, 'known_class': [20, 30, 40]},
