@@ -95,7 +95,7 @@ def main():
 
     if args.use_cpu: use_gpu = False
 
-    sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
+    #sys.stdout = Logger(osp.join(args.save_dir, args.query_strategy + '_log_' + args.dataset + '.txt'))
 
     if use_gpu:
         print("Currently using GPU: {}".format(args.gpu))
@@ -140,6 +140,7 @@ def main():
     Precision = {}
     Recall = {}
     for query in tqdm(range(args.max_query)):
+
         # Model initialization
         if args.model == "cnn":
             model = models.create(name=args.model, num_classes=dataset.num_classes)
@@ -302,26 +303,35 @@ def main():
         )
         trainloader_B, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
 
+
     ## Save results
     with open(
             "log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + ".pkl", 'wb') as f:
+    
         data = {'Acc': Acc, 'Err': Err, 'Precision': Precision, 'Recall': Recall}
+    
         pickle.dump(data, f)
+    
+
     f.close()
     ## Save model
-    save_directory = "save_model"
-    if not os.path.exists(save_directory):
-        os.makedirs(save_directory)
-    if args.is_mini:
-         torch.save(model_B,
-                   "save_model/AL_center_" + args.dataset + "30_mini_query" + str(args.max_query) + "_batch" + str(
-                       args.query_batch) + ".pt")
-    else:
-        torch.save(model_B, "save_model/AL_center_" + args.dataset + "30_query" + str(args.max_query) + "_batch" + str(
-            args.query_batch) + ".pt")
+    #save_directory = "save_model"
+    #if not os.path.exists(save_directory):
+    #    os.makedirs(save_directory)
+    
+    #if args.is_mini:
+    #     torch.save(model_B,
+    #               "save_model/AL_center_" + args.dataset + "30_mini_query" + str(args.max_query) + "_batch" + str(
+    #                   args.query_batch) + ".pt")
+    #else:
+    #    torch.save(model_B, "save_model/AL_center_" + args.dataset + "30_query" + str(args.max_query) + "_batch" + str(
+    #        args.query_batch) + ".pt")
+    
+
+
     elapsed = round(time.time() - start_time)
     elapsed = str(datetime.timedelta(seconds=elapsed))
     print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))

@@ -1,0 +1,17 @@
+Currently using GPU: 0
+Creating dataset: cifar100
+Files already downloaded and verified
+Shuffle
+openset here!
+Files already downloaded and verified
+Creating model: resnet18
+==> Test
+Model_A | Accuracy (%): 35.30000305175781	 Error rate (%): 64.69999694824219
+Model_B | Accuracy (%): 37.35000228881836	 Error rate (%): 62.64999771118164
+Query Strategy: random | Query Batch: 1500 | Valid Query Nums: 282 | Query Precision: 0.188 | Query Recall: 0.1082 | Training Nums: 1082 | Unalebled Nums: 47700
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
