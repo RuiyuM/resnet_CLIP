@@ -949,13 +949,13 @@ def test_query(args, query, unlabeledloader, Len_labeled_ind_train, use_gpu, lab
 
 
 
-def calc_entropy(input_tensor):
-    lsm = nn.LogSoftmax()
-    log_probs = lsm(input_tensor)
-    probs = torch.exp(log_probs)
-    p_log_p = log_probs * probs
-    entropy = -p_log_p.mean()
-    return entropy
+# def calc_entropy(input_tensor):
+#     lsm = nn.LogSoftmax()
+#     log_probs = lsm(input_tensor)
+#     probs = torch.exp(log_probs)
+#     p_log_p = log_probs * probs
+#     entropy = -p_log_p.mean()
+#     return entropy
 
 
 def active_learning_5(args, query, index_knn, queryIndex, S_index, labeled_index_to_label):
@@ -1302,13 +1302,15 @@ def core_set(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     return final_chosen_index, invalid_index, precision, recall
 
 
-def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model,criterion_cent, use_gpu, openmax_beta=0.5):
+def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu, openmax_beta=0.5):
     model.eval()
     queryIndex = []
     labelArr = []
     uncertainty_scores = []
 
-    def compute_openmax_score(proba_out, distances, beta=openmax_beta):
+    def compute_openmax_score(proba_out, mean_proba_known_classes, beta=openmax_beta):
+        # Approximate distance by the difference between the probability and the mean probability
+        distances = np.abs(proba_out - mean_proba_known_classes)
         scores = (1 - proba_out) * np.exp(-beta * distances)
         return np.sum(scores, axis=1)
 
@@ -1318,21 +1320,21 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model,criteri
         if args.dataset == 'mnist':
             data = data.repeat(1, 3, 1, 1)
         with torch.no_grad():
-            features, outputs = model(data)
+            _, outputs = model(data)
 
         queryIndex += list(np.array(index.cpu().data))
         labelArr += list(np.array(labels.cpu().data))
 
         _, predicted = outputs.max(1)
         proba_out = softmax(outputs, dim=1)
-        proba_out = torch.gather(proba_out, 1, predicted.unsqueeze(1))
+        proba_out_known_classes = proba_out[:, :args.known_class]
 
-        distances = np.array([euclidean(features[i].cpu().detach().numpy(),
-                                        criterion_cent.centers[predicted[i].cpu()].cpu().detach().numpy())
-                              for i in range(features.size(0))])
+        mean_proba_known_classes = proba_out_known_classes.mean(axis=1, keepdims=True)
 
-        uncertainty = compute_openmax_score(proba_out.cpu().numpy(), distances, openmax_beta)
+        uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(), mean_proba_known_classes.cpu().numpy(), openmax_beta)
         uncertainty_scores += list(uncertainty)
+        if batch_idx > 10:
+            break
 
     uncertainty_scores = np.array(uncertainty_scores)
     sorted_indices = np.argsort(-uncertainty_scores)

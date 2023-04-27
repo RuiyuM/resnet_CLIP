@@ -17,7 +17,7 @@ from torch.optim import lr_scheduler
 import torch.backends.cudnn as cudnn
 from tqdm import tqdm
 from resnet import resnet18, resnet34, resnet50, resnet101, resnet152
-from resnet_openmax import resnet18 as resnet18_openmax
+# from resnet_openmax import resnet18 as resnet18_openmax
 import Sampling
 
 import datasets
@@ -146,12 +146,8 @@ def main():
             model = models.create(name=args.model, num_classes=dataset.num_classes)
         elif args.model == "resnet18":
             # 多出的一类用来预测为unknown
-            if args.query_strategy == "OpenMax":
-                model_A = resnet18_openmax(num_classes=dataset.num_classes + 1)
-                model_B = resnet18_openmax(num_classes=dataset.num_classes)
-            else:
-                model_A = resnet18(num_classes=dataset.num_classes + 1)
-                model_B = resnet18(num_classes=dataset.num_classes)
+            model_A = resnet18(num_classes=dataset.num_classes + 1)
+            model_B = resnet18(num_classes=dataset.num_classes)
         elif args.model == "resnet34":
             model_A = resnet34(num_classes=dataset.num_classes + 1)
             model_B = resnet34(num_classes=dataset.num_classes)
@@ -178,23 +174,14 @@ def main():
 
         # Model training
         for epoch in tqdm(range(args.max_epoch)):
-
-            if args.query_strategy == "OpenMax":
-                train_A_open_max(model_A, criterion_xent, criterion_cent,
+                # Train model A for detecting unknown classes
+            train_A(model_A, criterion_xent, criterion_cent,
                         optimizer_model_A, optimizer_centloss,
                         trainloader_A, invalidList, use_gpu, dataset.num_classes, epoch)
-                train_B_open_max(model_B, criterion_xent, criterion_cent,
+                # Train model B for classifying known classes
+            train_B(model_B, criterion_xent, criterion_cent,
                         optimizer_model_B, optimizer_centloss,
                         trainloader_B, use_gpu, dataset.num_classes, epoch)
-            else:
-                # Train model A for detecting unknown classes
-                train_A(model_A, criterion_xent, criterion_cent,
-                    optimizer_model_A, optimizer_centloss,
-                    trainloader_A, invalidList, use_gpu, dataset.num_classes, epoch)
-                # Train model B for classifying known classes
-                train_B(model_B, criterion_xent, criterion_cent,
-                    optimizer_model_B, optimizer_centloss,
-                    trainloader_B, use_gpu, dataset.num_classes, epoch)
 
             if args.stepsize > 0:
                 scheduler_A.step()
@@ -266,7 +253,9 @@ def main():
                                                                                                   len(labeled_ind_train), model_A, use_gpu)
         elif args.query_strategy == "OpenMax":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.openmax_sampling(args, unlabeledloader,
-                                                                                                  len(labeled_ind_train), model_A, criterion_cent_special, use_gpu)
+                                                                                                  len(labeled_ind_train),
+                                                                                                  model_A, use_gpu,
+                                                                                                  openmax_beta=0.5)
 
         elif args.query_strategy == "Core_set":
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.core_set(args, unlabeledloader,
@@ -460,124 +449,6 @@ def train_B(model, criterion_xent, criterion_cent,
         all_labels = np.concatenate(all_labels, 0)
         plot_features(all_features, all_labels, num_classes, epoch, prefix='train')
 
-
-def train_A_open_max(model, criterion_xent, criterion_cent,
-            optimizer_model, optimizer_centloss,
-            trainloader, invalidList, use_gpu, num_classes, epoch):
-    model.train()
-    xent_losses = AverageMeter()
-    cent_losses = AverageMeter()
-    losses = AverageMeter()
-
-    if args.plot:
-        all_features, all_labels = [], []
-
-    known_T = args.known_T
-    unknown_T = args.unknown_T
-    invalid_class = args.known_class
-    for batch_idx, (index, (data, labels)) in enumerate(trainloader):
-
-        # Reduce temperature
-        # T = torch.tensor([known_T] * labels.shape[0], dtype=float)
-
-        '''
-        for i in range(len(labels)):
-            # Annotate "unknown"
-            if index[i] in invalidList:
-                labels[i] = invalid_class
-                T[i] = unknown_T
-        '''
-
-        if use_gpu:
-            # data, labels, T = data.cuda(), labels.cuda(), T.cuda()
-            data, labels = data.cuda(), labels.cuda()
-
-
-        features, outputs = model(data)
-        # outputs = outputs / T.unsqueeze(1)
-        loss_xent = criterion_xent(outputs, labels)
-        loss_cent = criterion_cent(features, labels)
-        loss_cent *= args.weight_cent
-        loss = loss_xent + loss_cent
-        optimizer_model.zero_grad()
-        optimizer_centloss.zero_grad()
-        loss.backward()
-        optimizer_model.step()
-        # by doing so, weight_cent would not impact on the learning of centers
-        if args.weight_cent > 0.0:
-            for param in criterion_cent.parameters():
-                param.grad.data *= (1. / args.weight_cent)
-            optimizer_centloss.step()
-
-        losses.update(loss.item(), labels.size(0))
-        xent_losses.update(loss_xent.item(), labels.size(0))
-        cent_losses.update(loss_cent.item(), labels.size(0))
-
-        if args.plot:
-            if use_gpu:
-                all_features.append(features.data.cpu().numpy())
-                all_labels.append(labels.data.cpu().numpy())
-            else:
-                all_features.append(features.data.numpy())
-                all_labels.append(labels.data.numpy())
-
-    if args.plot:
-        all_features = np.concatenate(all_features, 0)
-        all_labels = np.concatenate(all_labels, 0)
-        plot_features(all_features, all_labels, num_classes, epoch, prefix='train')
-
-
-def train_B_open_max(model, criterion_xent, criterion_cent,
-            optimizer_model, optimizer_centloss,
-            trainloader, use_gpu, num_classes, epoch):
-    model.train()
-    xent_losses = AverageMeter()
-    cent_losses = AverageMeter()
-    losses = AverageMeter()
-
-    if args.plot:
-        all_features, all_labels = [], []
-
-    for batch_idx, (index, (data, labels)) in enumerate(trainloader):
-        if use_gpu:
-            data, labels = data.cuda(), labels.cuda()
-
-        features, outputs = model(data)
-        loss_xent = criterion_xent(outputs, labels)
-        loss_cent = criterion_cent(features, labels)
-        loss_cent *= args.weight_cent
-        loss = loss_xent + loss_cent
-        optimizer_model.zero_grad()
-        optimizer_centloss.zero_grad()
-        loss.backward()
-        optimizer_model.step()
-        # by doing so, weight_cent would not impact on the learning of centers
-        if args.weight_cent > 0.0:
-            for param in criterion_cent.parameters():
-                param.grad.data *= (1. / args.weight_cent)
-            optimizer_centloss.step()
-
-        losses.update(loss.item(), labels.size(0))
-        xent_losses.update(loss_xent.item(), labels.size(0))
-        cent_losses.update(loss_cent.item(), labels.size(0))
-
-        if args.plot:
-            if use_gpu:
-                all_features.append(features.data.cpu().numpy())
-                all_labels.append(labels.data.cpu().numpy())
-            else:
-                all_features.append(features.data.numpy())
-                all_labels.append(labels.data.numpy())
-
-        # if (batch_idx + 1) % args.print_freq == 0:
-        #     print("Batch {}/{}\t Loss {:.6f} ({:.6f}) XentLoss {:.6f} ({:.6f}) CenterLoss {:.6f} ({:.6f})" \
-        #           .format(batch_idx + 1, len(trainloader), losses.val, losses.avg, xent_losses.val, xent_losses.avg,
-        #                   cent_losses.val, cent_losses.avg))
-
-    if args.plot:
-        all_features = np.concatenate(all_features, 0)
-        all_labels = np.concatenate(all_labels, 0)
-        plot_features(all_features, all_labels, num_classes, epoch, prefix='train')
 
 
 def get_image_label(index, dataset):

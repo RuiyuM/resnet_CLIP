@@ -1,5 +1,7 @@
 import os
 import glob
+import pickle
+
 from PIL import Image
 import numpy as np
 import torch
@@ -775,7 +777,8 @@ def create(name, known_class_, init_percent_, batch_size, use_gpu, num_workers, 
     set_seed(SEED)
     known_class = known_class_
     init_percent = init_percent_
-    target_train = load_tiny_imagenet_train('./data/tiny-imagenet-200')
+    with open('target_train.pkl', 'rb') as f:
+        target_train = pickle.load(f)
     # target_test = load_tiny_imagenet_test('./data/tiny-imagenet-200')
     if name not in __factory.keys():
         raise KeyError("Unknown dataset: {}".format(name))
