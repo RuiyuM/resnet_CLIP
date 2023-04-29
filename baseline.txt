@@ -25,3 +25,11 @@ CUDA_VISIBLE_DEVICES=7 nohup python AL_center_temperature.py --gpu 0 --save-dir 
 CUDA_VISIBLE_DEVICES=0 nohup python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy AV_temperature --init-percent 1 --known-class 2 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar10 > ./log_AL/AV_temperature_1_2_cifar10_seed1.txt &
 CUDA_VISIBLE_DEVICES=1 nohup python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy AV_temperature --init-percent 1 --known-class 2 --query-batch 1500 --seed 2 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar10 > ./log_AL/AV_temperature_1_2_cifar10_seed2.txt &
 CUDA_VISIBLE_DEVICES=2 nohup python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy AV_temperature --init-percent 1 --known-class 2 --query-batch 1500 --seed 3 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar10 > ./log_AL/AV_temperature_1_2_cifar10_seed3.txt &
+
+
+
+
+
+CUDA_VISIBLE_DEVICES=0 python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy $method --init-percent 8 --known-class 40 --query-batch 1500 --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset Tiny-Imagenet &
+CUDA_VISIBLE_DEVICES=1 python AL_center_temperature.py --gpu 1 --save-dir log_AL/ --weight-cent 0 --query-strategy $method --init-percent 8 --known-class 40 --query-batch 1500 --seed 2 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset Tiny-Imagenet &
+CUDA_VISIBLE_DEVICES=2 python AL_center_temperature.py --gpu 2 --save-dir log_AL/ --weight-cent 0 --query-strategy $method --init-percent 8 --known-class 40 --query-batch 1500 --seed 3 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset Tiny-Imagenet &
