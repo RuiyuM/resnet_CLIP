@@ -1,6 +1,7 @@
 #! /bin/bash
 
-methods=("random" "uncertainty" "BGADL" "OpenMax" "Core_set" "certainty" "AV_temperature")
+#methods=("random" "uncertainty" "BGADL" "OpenMax" "Core_set" "certainty" "AV_temperature")
+methods=("OpenMax" "Core_set" "certainty" "AV_temperature")
 
 for method in ${methods[@]}; 
 do
