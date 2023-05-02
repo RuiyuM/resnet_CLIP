@@ -1333,8 +1333,8 @@ def openmax_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gp
 
         uncertainty = compute_openmax_score(proba_out_known_classes.cpu().numpy(), mean_proba_known_classes.cpu().numpy(), openmax_beta)
         uncertainty_scores += list(uncertainty)
-        if batch_idx > 10:
-            break
+        # if batch_idx > 10:
+        #     break
 
     uncertainty_scores = np.array(uncertainty_scores)
     sorted_indices = np.argsort(-uncertainty_scores)
