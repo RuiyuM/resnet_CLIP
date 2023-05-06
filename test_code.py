@@ -2,6 +2,8 @@ import os
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.patches as patches
+from matplotlib import cm
 #%%
 sampling_methods = ['random', 'uncertainty', "BGADL", "OpenMax", "Core_set", 'certainty', 'active_query', 'AV_temperature', "test_query"]
 datasets = {'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40], 'batch': [200, 400, 600, 1500]},
@@ -96,3 +98,24 @@ for dataset_name, dataset_info in datasets.items():
 
             plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list, precision_std_list,
                         recall_std_list, batch_size)
+
+# import matplotlib.pyplot as plt
+# import matplotlib.patches as patches
+
+
+# def plot_legend(sampling_methods):
+#     colors = cm.get_cmap('tab10', len(sampling_methods))
+#
+#     # Create a separate legend plot
+#     legend_elements = [patches.Patch(color=colors(i), label=sampling_methods[i]) for i in range(len(sampling_methods))]
+#
+#     fig, ax = plt.subplots(figsize=(20, 4.8))  # Adjust the figsize to 640x480 pixels
+#     ax.legend(handles=legend_elements, loc='center', ncol=len(sampling_methods), bbox_to_anchor=(0.5, 0.5))
+#     ax.axis('off')
+#     plt.show()
+#
+#
+# # Example usage:
+# sampling_methods = ['random', 'uncertainty', "BGADL", "OpenMax", "Core_set", 'certainty', 'active_query',
+#                     'AV_temperature', "test_query"]
+# plot_legend(sampling_methods)
