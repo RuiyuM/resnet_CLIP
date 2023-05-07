@@ -3,6 +3,7 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from matplotlib.ticker import MaxNLocator
 #%%
 sampling_methods = ['random', 'uncertainty', "BGADL", "OpenMax", "Core_set", 'certainty', 'active_query', 'AV_temperature', 'test_query']
 datasets = {'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40], 'batch': [200, 400, 600]},
@@ -69,6 +70,31 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
             tic.tick2line.set_visible(False)
 
 
+
+
+    if group_name == "Tiny-Imagenet Known 40 Batch 400":
+        # Create an inset axis
+        ax_inset = inset_axes(ax, width="40%", height="40%", loc='upper left', borderpad=2.5)
+        half_length = len(query_numbers) // 2
+        for i, (acc, acc_std) in enumerate(zip(acc_list, acc_std_list)):
+            label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
+            if label == 'test_query' or label == 'Proposed':
+                if label == 'Proposed':
+                    label = "active_query"
+                ax_inset.plot(query_numbers[half_length:], acc[half_length:], label=label, color=method_colors[label])
+                ax_inset.fill_between(query_numbers[half_length:],
+                                      np.array(acc[half_length:]) - 0.8 * np.array(acc_std[half_length:]),
+                                      np.array(acc[half_length:]) + 0.8 * np.array(acc_std[half_length:]), alpha=0.2,
+                                      color=method_colors[label])
+
+        ax_inset.set_xlim(7.0, query_numbers[-1])  # Set x-axis from 6.0 to the end
+        ax_inset.set_ylim(42.5, 42.5 + 8)  # Set y-axis range from 36 to 42
+        ax_inset.xaxis.set_ticklabels([])  # Remove x-axis numbers
+        # ax_inset.yaxis.set_ticklabels([]) # Remove x-axis numbers
+        for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
+            tic.tick1line.set_visible(False)
+            tic.tick2line.set_visible(False)
+
     plt.show()
 
     # plot precision
@@ -77,10 +103,17 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
     for i, (precision, precision_std) in enumerate(zip(precision_list, precision_std_list)):
         label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
         ax.plot(query_numbers, np.array(precision) * 100, label=label, color=method_colors[label])
-        ax.fill_between(query_numbers, (np.array(precision) - 0.8 * np.array(precision_std)) * 100, (np.array(precision) + 0.8 * np.array(precision_std)) * 100, alpha=0.2, color=method_colors[label])
-        for qn, y in zip(query_numbers, acc):
-            ax.axhline(y, linestyle='dashed', alpha=0.3, color=method_colors[label])
-            ax.axvline(qn, linestyle='dashed', alpha=0.3, color=method_colors[label])
+        ax.fill_between(query_numbers, (np.array(precision) - 0.8 * np.array(precision_std)) * 100,
+                        (np.array(precision) + 0.8 * np.array(precision_std)) * 100, alpha=0.2,
+                        color=method_colors[label])
+
+    for tick in ax.get_yticks():
+        ax.axhline(tick, linestyle='dashed', alpha=0.3, color='gray')
+
+    ax.xaxis.set_ticks(range(len(query_numbers)))
+
+    for tick in ax.get_xticks():
+        ax.axvline(tick, linestyle='dashed', alpha=0.3, color='gray')
 
     ax.set_xlabel('Query Numbers')
     ax.set_ylabel('Precision (%)')
@@ -88,7 +121,7 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
 
     if group_name == "Tiny-Imagenet Known 40 Batch 200":
         # Create an inset axis
-        ax_inset = inset_axes(ax, width="50%", height="50%", loc='upper left', borderpad=1)
+        ax_inset = inset_axes(ax, width="40%", height="40%", loc='upper left', borderpad=2.5)
         half_length = len(query_numbers) // 2
         for i, (precision, precision_std) in enumerate(zip(precision_list, precision_std_list)):
             label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
@@ -101,7 +134,31 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         ax_inset.set_xlim(6.0, query_numbers[-1])  # Set x-axis from 6.0 to the end
         ax_inset.set_ylim(70, 90)  # Set y-axis range from 70 to 90
         ax_inset.xaxis.set_ticklabels([])  # Remove x-axis numbers
-        ax_inset.yaxis.set_ticklabels([])  # Remove x-axis numbers
+        # ax_inset.yaxis.set_ticklabels([])  # Remove x-axis numbers
+        # ax_inset.set_xlabel('Query Numbers')
+        # ax_inset.set_ylabel('Precision (%)')
+                # Make tick marks invisible
+        for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
+            tic.tick1line.set_visible(False)
+            tic.tick2line.set_visible(False)
+
+    if group_name == "Tiny-Imagenet Known 40 Batch 400":
+        # Create an inset axis
+        ax_inset = inset_axes(ax, width="40%", height="40%", loc='upper left', borderpad=2.5)
+        half_length = len(query_numbers) // 2
+        for i, (precision, precision_std) in enumerate(zip(precision_list, precision_std_list)):
+            label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
+            if label == 'test_query' or label == 'Proposed':
+                if label == 'Proposed':
+                    label = "active_query"
+                ax_inset.plot(query_numbers[half_length:], np.array(precision[half_length:]) * 100, label=label, color=method_colors[label])
+                ax_inset.fill_between(query_numbers[half_length:], (np.array(precision[half_length:]) - 0.8 * np.array(precision_std[half_length:])) * 100, (np.array(precision[half_length:]) + 0.8 * np.array(precision_std[half_length:])) * 100, alpha=0.2, color=method_colors[label])
+
+        ax_inset.set_xlim(6.0, query_numbers[-1])  # Set x-axis from 6.0 to the end
+        ax_inset.set_ylim(80, 80 + 12)  # Set y-axis range from 70 to 90
+        ax_inset.xaxis.set_ticklabels([])  # Remove x-axis numbers
+        ax_inset.yaxis.set_major_locator(MaxNLocator(integer=True))
+        # ax_inset.yaxis.set_ticklabels([])  # Remove x-axis numbers
         # ax_inset.set_xlabel('Query Numbers')
         # ax_inset.set_ylabel('Precision (%)')
                 # Make tick marks invisible
@@ -121,42 +178,42 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
     # plt.legend()
     plt.show()
 
-    if group_name == "Tiny-Imagenet Known 40 Batch 200":
-        plt.figure()
-        half_length = len(query_numbers) // 2
-        for i, (acc, acc_std) in enumerate(zip(acc_list, acc_std_list)):
-            label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
-            if label == 'test_query' or label == 'Proposed':
-                if label == 'Proposed':
-                    label = "active_query"
-                plt.plot(query_numbers[half_length:], acc[half_length:], label=label, color=method_colors[label])
-                plt.fill_between(query_numbers[half_length:], np.array(acc[half_length:]) - 0.8 * np.array(acc_std[half_length:]), np.array(acc[half_length:]) + 0.8 * np.array(acc_std[half_length:]), alpha=0.2, color=method_colors[label])
-
-        plt.xlim(6.0, query_numbers[-1])  # Set x-axis from 7.0 to the end
-        plt.ylim(36, 42)  # Set y-axis range from 36 to 42
-        plt.gca().xaxis.set_ticklabels([])  # Remove x-axis numbers
-        # plt.xlabel('Query Numbers')
-        # plt.ylabel('Accuracy')
-        plt.title(f'{group_name.split()[0]} Batch {batch_size} enlarge')
-        plt.show()
-
-        plt.figure()
-        half_length = len(query_numbers) // 2
-        for i, (precision, precision_std) in enumerate(zip(precision_list, precision_std_list)):
-            label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
-            if label == 'test_query' or label == 'Proposed':
-                if label == 'Proposed':
-                    label = "active_query"
-                plt.plot(query_numbers[half_length:], np.array(precision[half_length:]) * 100, label=label, color=method_colors[label])
-                plt.fill_between(query_numbers[half_length:], (np.array(precision[half_length:]) - 0.8 * np.array(precision_std[half_length:])) * 100, (np.array(precision[half_length:]) + 0.8 * np.array(precision_std[half_length:])) * 100, alpha=0.2, color=method_colors[label])
-
-        plt.xlim(6.0, query_numbers[-1])  # Set x-axis from 7.0 to the end
-        plt.ylim(70, 90)  # Set y-axis range from 70 to 90
-        plt.gca().xaxis.set_ticklabels([])  # Remove x-axis numbers
-        plt.xlabel('Query Numbers')
-        plt.ylabel('Precision (%)')
-        plt.title(f'{group_name.split()[0]} Batch {batch_size} enlarge')
-        plt.show()
+    # if group_name == "Tiny-Imagenet Known 40 Batch 200":
+    #     plt.figure()
+    #     half_length = len(query_numbers) // 2
+    #     for i, (acc, acc_std) in enumerate(zip(acc_list, acc_std_list)):
+    #         label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
+    #         if label == 'test_query' or label == 'Proposed':
+    #             if label == 'Proposed':
+    #                 label = "active_query"
+    #             plt.plot(query_numbers[half_length:], acc[half_length:], label=label, color=method_colors[label])
+    #             plt.fill_between(query_numbers[half_length:], np.array(acc[half_length:]) - 0.8 * np.array(acc_std[half_length:]), np.array(acc[half_length:]) + 0.8 * np.array(acc_std[half_length:]), alpha=0.2, color=method_colors[label])
+    #
+    #     plt.xlim(6.0, query_numbers[-1])  # Set x-axis from 7.0 to the end
+    #     plt.ylim(36, 42)  # Set y-axis range from 36 to 42
+    #     plt.gca().xaxis.set_ticklabels([])  # Remove x-axis numbers
+    #     # plt.xlabel('Query Numbers')
+    #     # plt.ylabel('Accuracy')
+    #     plt.title(f'{group_name.split()[0]} Batch {batch_size} enlarge')
+    #     plt.show()
+    #
+    #     plt.figure()
+    #     half_length = len(query_numbers) // 2
+    #     for i, (precision, precision_std) in enumerate(zip(precision_list, precision_std_list)):
+    #         label = sampling_methods[i] if sampling_methods[i] != 'active_query' else 'Proposed'
+    #         if label == 'test_query' or label == 'Proposed':
+    #             if label == 'Proposed':
+    #                 label = "active_query"
+    #             plt.plot(query_numbers[half_length:], np.array(precision[half_length:]) * 100, label=label, color=method_colors[label])
+    #             plt.fill_between(query_numbers[half_length:], (np.array(precision[half_length:]) - 0.8 * np.array(precision_std[half_length:])) * 100, (np.array(precision[half_length:]) + 0.8 * np.array(precision_std[half_length:])) * 100, alpha=0.2, color=method_colors[label])
+    #
+    #     plt.xlim(6.0, query_numbers[-1])  # Set x-axis from 7.0 to the end
+    #     plt.ylim(70, 90)  # Set y-axis range from 70 to 90
+    #     plt.gca().xaxis.set_ticklabels([])  # Remove x-axis numbers
+    #     plt.xlabel('Query Numbers')
+    #     plt.ylabel('Precision (%)')
+    #     plt.title(f'{group_name.split()[0]} Batch {batch_size} enlarge')
+    #     plt.show()
     # if group_name == "Tiny-Imagenet Known 40 Batch 400":
     #     plt.figure()
     #     half_length = len(query_numbers) // 2
