@@ -35,7 +35,7 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         plt.fill_between(query_numbers, np.array(acc) - 0.8 * np.array(acc_std), np.array(acc) + 0.8 * np.array(acc_std), alpha=0.2)
     plt.xlabel('Query Numbers')
     plt.ylabel('Accuracy')
-    plt.title(f'Accuracy for {group_name} Batch {batch_size}')
+    plt.title(f'{group_name.split()[0]} Batch {batch_size}')  # Change the title
     plt.legend()
     plt.show()
 
@@ -46,7 +46,7 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         plt.fill_between(query_numbers, np.array(precision) - 0.8 * np.array(precision_std), np.array(precision) + 0.8 * np.array(precision_std), alpha=0.3)
     plt.xlabel('Query Numbers')
     plt.ylabel('Precision')
-    plt.title(f'Precision for {group_name} Batch {batch_size}')
+    plt.title(f'{group_name.split()[0]} Batch {batch_size}')  # Change the title
     plt.legend()
     plt.show()
 
@@ -57,9 +57,10 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         plt.fill_between(query_numbers, np.array(recall) - 0.8 * np.array(recall_std), np.array(recall) + 0.8 * np.array(recall_std), alpha=0.3)
     plt.xlabel('Query Numbers')
     plt.ylabel('Recall')
-    plt.title(f'Recall for {group_name} Batch {batch_size}')
+    plt.title(f'{group_name.split()[0]} Batch {batch_size}')  # Change the title
     plt.legend()
     plt.show()
+
 #%%
 for dataset_name, dataset_info in datasets.items():
     for known_class in dataset_info['known_class']:
