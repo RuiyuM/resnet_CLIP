@@ -269,7 +269,7 @@ def main():
 
 
 
-        per_round.append(list(queryIndex))
+        per_round.append(list(queryIndex) + list(invalidIndex))
 
 
 
@@ -301,6 +301,8 @@ def main():
         trainloader_B, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
 
 
+    #############################################################################################################
+
     ## Save results
     with open("./log_AL/temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
@@ -321,7 +323,6 @@ def main():
         
         pickle.dump(per_round, f)
     #############################################################################################################
-
 
 
     f.close()
