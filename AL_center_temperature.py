@@ -43,7 +43,7 @@ parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=1500)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy', 'test_query', "BGADL", "OpenMax", "Core_set", 'certainty'])
+                             'AV_temperature', 'My_Query_Strategy', 'test_query', "BGADL", "OpenMax", "Core_set", 'certainty', 'BADGE_sampling'])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
@@ -267,6 +267,9 @@ def main():
             queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.certainty_sampling(args, unlabeledloader,
                                                                                                   len(labeled_ind_train), model_A, use_gpu)
 
+        elif args.query_strategy == "BADGE_sampling":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.badge_sampling(args, unlabeledloader,
+                                                                                                  len(labeled_ind_train), model_A, use_gpu)
 
 
         per_round.append(list(queryIndex))

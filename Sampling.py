@@ -4,10 +4,10 @@ import torch
 from scipy.spatial.distance import euclidean
 import torch.nn.functional as F
 from collections import Counter
-
-
+import pdb
+from scipy import stats
 from extract_features import CIFAR100_EXTRACT_FEATURE_CLIP_new
-
+from copy import deepcopy
 from torch.distributions import Categorical
 
 from torch.nn.functional import softmax
@@ -1453,3 +1453,109 @@ def fit_weibull(mav, activation_vectors, tail_size):
 #         openmax_probs = np.append(openmax_probs, alpha * unknown_prob)
 #
 #     return openmax_probs[-1]  # Return the probability of the sample belonging to the unknown class
+
+def init_centers(X, K):
+    embs = torch.Tensor(X)
+    ind = torch.argmax(torch.norm(embs, 2, 1)).item()
+    embs = embs.cuda()
+    mu = [embs[ind]]
+    indsAll = [ind]
+    centInds = [0.] * len(embs)
+    cent = 0
+    # print('#Samps\tTotal Distance')
+    while len(mu) < K:
+        if len(mu) == 1:
+            D2 = torch.cdist(mu[-1].view(1,-1), embs, 2)[0].cpu().numpy()
+        else:
+            newD = torch.cdist(mu[-1].view(1,-1), embs, 2)[0].cpu().numpy()
+            for i in range(len(embs)):
+                if D2[i] >  newD[i]:
+                    centInds[i] = cent
+                    D2[i] = newD[i]
+        print(str(len(mu)) + '\t' + str(sum(D2)), flush=True)
+        if sum(D2) == 0.0: pdb.set_trace()
+        D2 = D2.ravel().astype(float)
+        Ddist = (D2 ** 2)/ sum(D2 ** 2)
+        customDist = stats.rv_discrete(name='custm', values=(np.arange(len(D2)), Ddist))
+        ind = customDist.rvs(size=1)[0]
+        while ind in indsAll: ind = customDist.rvs(size=1)[0]
+        mu.append(embs[ind])
+        indsAll.append(ind)
+        cent += 1
+    return indsAll
+
+def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_ind_train,labeled_ind_train,
+                                                                            invalidList, model, use_gpu):
+    model.eval()
+    embDim = 512
+    nLab = args.known_class
+    embedding = np.zeros([len_unlabeled_ind_train + Len_labeled_ind_train, embDim * nLab])
+
+    queryIndex = []
+    data_image = []
+    labelArr = []
+    uncertaintyArr = []
+    S_ij = {}
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+        # output = cout
+        out, outputs = model(data)
+        out = out.data.cpu().numpy()
+        batchProbs = F.softmax(outputs, dim=1).data.cpu().numpy()
+        maxInds = np.argmax(batchProbs, 1)
+        for j in range(len(labels)):
+            for c in range(nLab):
+                if c == maxInds[j]:
+                    embedding[index[j]][embDim * c: embDim * (c + 1)] = deepcopy(out[j]) * (1 - batchProbs[j][c])
+                else:
+                    embedding[index[j]][embDim * c: embDim * (c + 1)] = deepcopy(out[j]) * (-1 * batchProbs[j][c])
+        # 当前的index 128 个 进入queryIndex array
+        data_image += data
+        queryIndex += index
+        # my_test_for_outputs = outputs.cpu().data.numpy()
+        # print(my_test_for_outputs)
+        # 这句code的意思就是把GPU上的数据转移到CPU上面然后再把数据类型从tensor转变为python的数据类型
+        labelArr += list(np.array(labels.cpu().data))
+        # activation value based
+        # 这个function会return 128行然后每行21列的数据，return分两个部分，一个部分是tensor的数据类型然后是每行最大的数据
+        # 另一个return的东西也是tensor的数据类型然后是每行的最大的值具体在这一行的具体位置
+        v_ij, predicted = outputs.max(1)
+        for i in range(len(predicted.data)):
+            tmp_class = np.array(predicted.data.cpu())[i]
+            tmp_index = index[i].item()
+            tmp_label = np.array(labels.data.cpu())[i]
+            tmp_value = np.array(v_ij.data.cpu())[i]
+
+            if tmp_index not in S_ij:
+                S_ij[tmp_index] = []
+            S_ij[tmp_index].append([tmp_class, tmp_value, tmp_label])
+
+    embedding = torch.Tensor(embedding)
+    chosen = init_centers(embedding, args.query_batch)
+    queryIndex = chosen
+    queryLabelArr = []
+    # Assuming labeled_ind_train, invalidList and queryIndex are defined and are lists
+
+    # Merging the lists labeled_ind_train and invalidList into a single list
+    elements_to_remove = labeled_ind_train + invalidList
+
+    # Using list comprehension to remove elements in queryIndex which are also found in elements_to_remove
+    queryIndex = [element for element in queryIndex if element not in elements_to_remove]
+    queryIndex = np.array(queryIndex)
+    # Now, queryIndex contains only the elements not found in either labeled_ind_train or invalidList
+
+    for i in range(len(queryIndex)):
+        queryLabelArr.append(S_ij[queryIndex[i]][0][2])
+
+    queryLabelArr = np.array(queryLabelArr)
+    labelArr = np.array(labelArr)
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+    recall = (len(np.where(queryLabelArr < args.known_class)[0]) + Len_labeled_ind_train) / (
+            len(np.where(labelArr < args.known_class)[0]) + Len_labeled_ind_train)
+    return queryIndex[np.where(queryLabelArr < args.known_class)[0]], queryIndex[
+        np.where(queryLabelArr >= args.known_class)[0]], precision, recall
+
+
+
+
