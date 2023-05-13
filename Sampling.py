@@ -1541,7 +1541,7 @@ def badge_sampling(args, unlabeledloader, Len_labeled_ind_train,len_unlabeled_in
     elements_to_remove = labeled_ind_train + invalidList
 
     # Using list comprehension to remove elements in queryIndex which are also found in elements_to_remove
-    # queryIndex = [element for element in queryIndex if element not in elements_to_remove]
+    queryIndex = [element for element in queryIndex if element not in elements_to_remove]
     queryIndex = np.array(queryIndex)
     # Now, queryIndex contains only the elements not found in either labeled_ind_train or invalidList
 
