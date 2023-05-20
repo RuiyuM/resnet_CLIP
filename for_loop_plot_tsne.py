@@ -5,12 +5,7 @@ import torch
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
 from matplotlib.lines import Line2D
-from torchvision import datasets, transforms
-from torch.utils.data import Dataset, DataLoader
-from torch.autograd import Variable
-import clip
-import torch.nn.functional as F
-import csv
+from matplotlib.ticker import NullLocator
 
 def load_files(feature_dir, label_dir):
     feature = torch.load(feature_dir)
@@ -112,9 +107,9 @@ for perplexity in perplexities:
                                 ax.scatter(tx[indices], ty[indices], s=1, color='gray', alpha=0.3)
 
 
-                    ax.scatter(baseline_index[:, 0], baseline_index[:, 1], s=75, c='b', alpha=0.55, label='LfOSA',
+                    ax.scatter(baseline_index[:, 0], baseline_index[:, 1], s=75, c='b', alpha=0.9, label='LfOSA',
                                edgecolor='white')
-                    ax.scatter(active_index[:, 0], active_index[:, 1], s=70, c='r', alpha=0.43, label='NEAT',
+                    ax.scatter(active_index[:, 0], active_index[:, 1], s=70, c='r', alpha=0.9, label='NEAT',
                                edgecolor='white')
 
                     # create custom legend handles
@@ -130,14 +125,10 @@ for perplexity in perplexities:
                                               markerfacecolor='b', markersize=15, markeredgecolor='white')]
 
                     ax.legend(handles=legend_elements, loc='best', prop={'size': 16})
-                    # plot the dashed lines
-                    ax.grid(color='gray', linestyle='--', linewidth=0.5)
-                    ax.set_axisbelow(True)
-
-                    # adjust tick label size
-                    ax.tick_params(axis='both', which='major', labelsize=18)
-
-                    ax.set_title("t-SNE Visualization of CLIP Extracted CIFAR-10 Features", fontsize=20)
-                    # plt.savefig(f"image/cifar100_tsne_plot_Perplexity_{perplexity}_EarlyExaggeration_{early_exaggeration}_LearningRate_{learning_rate}_NIter_{n_iter}_Round_{round}.png")
-                    # plt.close()
+                    # Remove tick marks, labels, and axis lines
+                    ax.xaxis.set_major_locator(NullLocator())
+                    ax.yaxis.set_major_locator(NullLocator())
+                    ax.set_frame_on(False)
+                    plt.savefig(f'image/feature_plot.png', format='png', dpi=300)
+                    # ax.set_title("t-SNE Visualization of CLIP Extracted CIFAR-10 Features", fontsize=20)
                     plt.show()
