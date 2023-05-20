@@ -6,6 +6,7 @@
 
 import torch
 import torch.nn as nn
+import torchvision.models as models
 
 
 class BasicBlock(nn.Module):
@@ -94,7 +95,6 @@ class ResNet(nn.Module):
         self.conv5_x = self._make_layer(block, 512, num_block[3], 2)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
 
-
         # self.fc1 = nn.Linear(512 * block.expansion, 2)
         # self.fc2 = nn.Linear(2, num_classes)
 
@@ -133,12 +133,28 @@ class ResNet(nn.Module):
         output = self.avg_pool(output)
         features_for_TSNE = torch.flatten(output, 1)
 
-       
         feature = output.view(output.size(0), -1)
-        
+
         output = self.fc(feature)
 
         return feature, output
+
+
+class VGG16(nn.Module):
+    def __init__(self, num_classes=1000):
+        super(VGG16, self).__init__()
+        self.features = models.vgg16(pretrained=False).features
+        self.avgpool = models.vgg16(pretrained=False).avgpool
+        self.classifier = models.vgg16(pretrained=False).classifier[:-1]  # remove the last layer
+        self.final = nn.Linear(4096, num_classes)
+
+    def forward(self, x):
+        x = self.features(x)
+        x = self.avgpool(x)
+        features = torch.flatten(x, 1)  # this will be the 512 features
+        x = self.classifier(features)
+        outputs = self.final(x)  # this will be the activation value
+        return features, outputs
 
 
 def resnet18(num_classes):
@@ -169,3 +185,9 @@ def resnet152(num_classes):
     """ return a ResNet 152 object
     """
     return ResNet(BottleNeck, [3, 8, 36, 3], num_classes)
+
+
+def vgg16(num_classes):
+    """ return a VGG 16 object
+    """
+    return VGG16(num_classes=num_classes)

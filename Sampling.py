@@ -13,6 +13,7 @@ from torch.distributions import Categorical
 from torch.nn.functional import softmax
 from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
 
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()
