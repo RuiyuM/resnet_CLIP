@@ -5,7 +5,7 @@ sampling_methods = ['random', 'uncertainty', "BGADL", "OpenMax", "Core_set", 'ce
 # datasets = {'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40, 60, 80]},
 #             'cifar100': {'init_percent': 8, 'known_class': [20, 30, 40]},
 #             'cifar10': {'init_percent': 1, 'known_class': [2, 3, 4]}}
-datasets = {'cifar10': {'init_percent': 1, 'known_class': [2]}}
+datasets = {'cifar100': {'init_percent': 8, 'known_class': [20]}}
 
 def generate_command(sampling_method, dataset_name, gpu_id, seed):
     dataset = datasets[dataset_name]
