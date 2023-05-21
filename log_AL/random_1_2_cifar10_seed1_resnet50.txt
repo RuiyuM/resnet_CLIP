@@ -1,0 +1,107 @@
+Currently using GPU: 0
+Creating dataset: cifar10
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Creating model: resnet50
+==> Test
+Model_A | Accuracy (%): 49.85000228881836	 Error rate (%): 50.14999771118164
+Model_B | Accuracy (%): 73.25	 Error rate (%): 26.75
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 77 | Query Precision: 0.1925 | Query Recall: 0.0177 | Training Nums: 177 | Unalebled Nums: 49500
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 52.05000305175781	 Error rate (%): 47.94999694824219
+Model_B | Accuracy (%): 83.30000305175781	 Error rate (%): 16.699996948242188
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 73 | Query Precision: 0.1825 | Query Recall: 0.025 | Training Nums: 250 | Unalebled Nums: 49100
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 0.0	 Error rate (%): 100.0
+Model_B | Accuracy (%): 85.20000457763672	 Error rate (%): 14.799995422363281
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 85 | Query Precision: 0.2125 | Query Recall: 0.0335 | Training Nums: 335 | Unalebled Nums: 48700
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 55.05000305175781	 Error rate (%): 44.94999694824219
+Model_B | Accuracy (%): 85.00000762939453	 Error rate (%): 14.999992370605469
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 68 | Query Precision: 0.17 | Query Recall: 0.0403 | Training Nums: 403 | Unalebled Nums: 48300
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 46.80000305175781	 Error rate (%): 53.19999694824219
+Model_B | Accuracy (%): 82.4000015258789	 Error rate (%): 17.599998474121094
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 78 | Query Precision: 0.195 | Query Recall: 0.0481 | Training Nums: 481 | Unalebled Nums: 47900
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 49.55000305175781	 Error rate (%): 50.44999694824219
+Model_B | Accuracy (%): 85.35000610351562	 Error rate (%): 14.649993896484375
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 91 | Query Precision: 0.2275 | Query Recall: 0.0572 | Training Nums: 572 | Unalebled Nums: 47500
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 52.85000228881836	 Error rate (%): 47.14999771118164
+Model_B | Accuracy (%): 85.20000457763672	 Error rate (%): 14.799995422363281
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 78 | Query Precision: 0.195 | Query Recall: 0.065 | Training Nums: 650 | Unalebled Nums: 47100
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 53.80000305175781	 Error rate (%): 46.19999694824219
+Model_B | Accuracy (%): 85.80000305175781	 Error rate (%): 14.199996948242188
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 73 | Query Precision: 0.1825 | Query Recall: 0.0723 | Training Nums: 723 | Unalebled Nums: 46700
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 56.500003814697266	 Error rate (%): 43.499996185302734
+Model_B | Accuracy (%): 88.05000305175781	 Error rate (%): 11.949996948242188
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 68 | Query Precision: 0.17 | Query Recall: 0.0791 | Training Nums: 791 | Unalebled Nums: 46300
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+==> Test
+Model_A | Accuracy (%): 56.60000228881836	 Error rate (%): 43.39999771118164
+Model_B | Accuracy (%): 86.6500015258789	 Error rate (%): 13.349998474121094
+Query Strategy: random | Query Batch: 400 | Valid Query Nums: 85 | Query Precision: 0.2125 | Query Recall: 0.0876 | Training Nums: 876 | Unalebled Nums: 45900
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 0:56:58
