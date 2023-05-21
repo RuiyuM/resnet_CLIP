@@ -104,4 +104,4 @@ Files already downloaded and verified
 Files already downloaded and verified
 openset here!
 Files already downloaded and verified
-Finished. Total elapsed time (h:m:s): 0:56:58
+Finished. Total elapsed time (h:m:s): 1:23:11

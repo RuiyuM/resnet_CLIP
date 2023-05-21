@@ -1,0 +1,10 @@
+Currently using GPU: 0
+Creating dataset: cifar100
+Files already downloaded and verified
+Shuffle
+openset here!
+Files already downloaded and verified
+Creating model: resnet50
+==> Test
+Model_A | Accuracy (%): 17.200000762939453	 Error rate (%): 82.80000305175781
+Model_B | Accuracy (%): 31.650001525878906	 Error rate (%): 68.3499984741211
