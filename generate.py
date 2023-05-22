@@ -14,7 +14,7 @@ def generate_command(sampling_method, dataset_name, gpu_id, seed):
 
     commands = []
     for kc in known_class:
-        command = f"CUDA_VISIBLE_DEVICES={gpu_id} nohup python AL_center_temperature.py --gpu 0 --save-dir log_AL/ --weight-cent 0 --query-strategy {sampling_method} --init-percent {init_percent} --known-class {kc} --query-batch 400 --seed {seed} --model resnet50 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset {dataset_name} > ./log_AL/{sampling_method}_{init_percent}_{kc}_{dataset_name}_seed{seed}_resnet50.txt &"
+        command = f"CUDA_VISIBLE_DEVICES={gpu_id} nohup python AL_center_temperature.py --gpu 4 --save-dir log_AL/ --weight-cent 0 --query-strategy {sampling_method} --init-percent {init_percent} --known-class {kc} --query-batch 600 --seed {seed} --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset {dataset_name} > ./log_AL/{sampling_method}_{init_percent}_{kc}_{dataset_name}_seed{seed}.txt &"
         commands.append(command)
 
     return commands

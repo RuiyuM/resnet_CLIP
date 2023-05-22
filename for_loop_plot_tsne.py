@@ -16,9 +16,9 @@ def load_files(feature_dir, label_dir):
 
 
 # %%
-feature_dir = "features/cifar10_features.pt"
+feature_dir = "features/clip/cifar10_features.pt"
 
-label_dir = "features/cifar10_labels.pt"
+label_dir = "features/clip/cifar10_labels.pt"
 
 feature, labels = load_files(feature_dir, label_dir)
 
@@ -129,6 +129,6 @@ for perplexity in perplexities:
                     ax.xaxis.set_major_locator(NullLocator())
                     ax.yaxis.set_major_locator(NullLocator())
                     ax.set_frame_on(False)
-                    plt.savefig(f'image/feature_plot.png', format='png', dpi=300)
+                    # plt.savefig(f'image/feature_plot.png', format='png', dpi=300)
                     # ax.set_title("t-SNE Visualization of CLIP Extracted CIFAR-10 Features", fontsize=20)
                     plt.show()
