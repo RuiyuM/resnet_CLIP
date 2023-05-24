@@ -1,0 +1,23 @@
+Currently using GPU: 1
+Creating dataset: cifar10
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Creating model: resnet18
+==> Test
+Model_B | Accuracy (%): 77.5	 Error rate (%): 22.5
+tensor([[76, 63, 71,  ..., 80, 48, 98],
+        [ 7,  4, 79,  ..., 70, 92, 10],
+        [53, 75, 37,  ..., 92, 55, 72],
+        ...,
+        [32,  5, 29,  ..., 36, 26, 79],
+        [98, 35, 11,  ..., 68,  1, 43],
+        [52, 23, 29,  ..., 89,  4, 75]], device='cuda:0')
+detected_unknown:  0.0
+
+
+[[10079, 10.0, 1], [5871, 10.0, 2], [25530, 10.0, 2], [25168, 10.0, 6], [44868, 10.0, 3], [41329, 10.0, 9], [10703, 10.0, 5], [2808, 10.0, 0], [21539, 10.0, 0], [41711, 10.0, 4], [3567, 10.0, 6], [20682, 10.0, 0], [16507, 10.0, 6], [38782, 10.0, 0], [35082, 10.0, 7], [29438, 10.0, 9], [39856, 10.0, 9], [47737, 10.0, 3], [13511, 10.0, 6], [26869, 10.0, 9]]
+Query round: 0 | Query Strategy: NEAT_passive | Query Batch: 400 | Valid Query Nums: 71 | Query Precision: 0.1775 | Query Recall: 0.0171 | Training Nums: 171 | Unalebled Nums: 49829
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified

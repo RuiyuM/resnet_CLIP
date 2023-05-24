@@ -1,0 +1,6 @@
+Currently using GPU: 4
+Creating dataset: cifar10
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Creating model: resnet50

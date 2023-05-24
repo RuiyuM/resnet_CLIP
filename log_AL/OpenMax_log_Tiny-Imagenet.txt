@@ -1,0 +1,4 @@
+Currently using GPU: 1
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: vgg16
