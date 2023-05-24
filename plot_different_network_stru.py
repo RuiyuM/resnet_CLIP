@@ -8,10 +8,9 @@ import matplotlib.patches as patches
 from matplotlib.ticker import MultipleLocator
 from matplotlib import cm
 
-sampling_methods = ['test_query', 'uncertainty', "AV_temperature", "active_query", "Core_set", 'certainty', 'OpenMax', 'BGADL', 'random', "BADGE_sampling"]
-datasets = {'cifar100': {'init_percent': 8, 'known_class': [20], 'batch': [600, 800]},
-    'cifar10': {'init_percent': 1, 'known_class': [2], 'batch': [600, 800]},
-    'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40], 'batch': [600, 800]}}
+sampling_methods = ["AV_temperature", "active_query"]
+datasets = {'cifar100': {'init_percent': 8, 'known_class': [20], 'batch': [400]},
+    'cifar10': {'init_percent': 1, 'known_class': [2], 'batch': [400]}}
 
 def load_pkl_files(dataset_name, known_class, batch_size=None):
     pkl_files = {method: [] for method in sampling_methods}
@@ -23,6 +22,14 @@ def load_pkl_files(dataset_name, known_class, batch_size=None):
             for method in sampling_methods:
                 if method in file:
                     if "_per_round_query_index" in file:
+                        continue
+                    if "_resnet18" not in file:
+                        continue
+                    if "hybrid" in file and method == "active_query":
+                        continue
+                    if "hybrid" not in file and method == "AV_temperature":
+                        continue
+                    if method == "active_query" and 'pretrained_model_clip_neighbor_10' not in file:
                         continue
                     pkl_files[method].append(os.path.join(log_al_folder, file))
                     break
