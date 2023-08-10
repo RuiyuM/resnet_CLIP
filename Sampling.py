@@ -930,7 +930,8 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
     index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train+invalidList, unlabeled_ind_train, args, ordered_feature, ordered_label)
 
-
+    print (index_knn)
+    
     labelArr = []
 
     model.eval()
@@ -1006,7 +1007,6 @@ def active_query(args, model, query, unlabeledloader, Len_labeled_ind_train, use
 
         else:
             detected_unknown += 1         
-
 
 
     print ("detected_unknown: ", detected_unknown)

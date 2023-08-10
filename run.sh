@@ -27,3 +27,8 @@ do
 done
 
 
+
+
+
+CUDA_VISIBLE_DEVICES=8 python AL_center_temperature.py --gpu 8 --k 10 --save-dir log_AL/ --weight-cent 0 --query-strategy $method --init-percent 1 --known-class 2 --query-batch $j --seed 1 --model resnet18 --known-T 0.5 --unknown-T 0.5 --modelB-T 1 --dataset cifar10 &
+
