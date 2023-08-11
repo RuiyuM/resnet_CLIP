@@ -175,7 +175,7 @@ class CIFAR100(object):
         #                                          transform=transform_train)
 
         trainset = CustomCIFAR100Dataset_train(transform=transform_train, invalidList=invalidList)
-
+        self.trainset = trainset
         ## 初始化
         if unlabeled_ind_train == None and labeled_ind_train == None:
             if is_mini:
@@ -342,7 +342,7 @@ class CIFAR10(object):
 
         #trainset = torchvision.datasets.CIFAR10("./data/cifar10", train=True, download=True, transform=transform_train)
         trainset = CustomCIFAR10Dataset_train(transform=transform_train, invalidList=invalidList)
-
+        self.trainset = trainset
 
         ## 初始化
         if unlabeled_ind_train == None and labeled_ind_train == None:
@@ -562,7 +562,10 @@ class TinyImageNet(object):
 
         trainset = CustomTinyImageNetDataset_train(transform=transform, target_train=target_train)
 
+        self.trainset = trainset
+
         if unlabeled_ind_train is None and labeled_ind_train is None:
+            
             if is_mini:
                 labeled_ind_train, unlabeled_ind_train = self.filter_known_unknown_10percent(trainset)
                 self.labeled_ind_train, self.unlabeled_ind_train = labeled_ind_train, unlabeled_ind_train

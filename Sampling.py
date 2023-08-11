@@ -14,6 +14,185 @@ from torch.nn.functional import softmax
 from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.cluster import KMeans
 
+
+
+def get_CSI_score(args, features_in, features_unlabeled):
+    # CSI Score
+    sim_scores = torch.tensor([]).cuda()
+    cos = torch.nn.CosineSimilarity(dim=1, eps=1e-08)
+    for f_u in features_unlabeled:
+        f_u_expand = f_u.reshape((1, -1)).expand((len(features_in), -1))
+        sim = cos(f_u_expand, features_in)  # .reshape(-1,1)
+        max_sim, _ = torch.max(sim, 0)
+        # score = max_sim * torch.norm(f_u)
+        sim_scores = torch.cat((sim_scores, max_sim.reshape(1)), 0)
+
+    # similarity = negative distance = nagative OODness
+    return sim_scores.type(torch.float32).reshape((-1, 1)).cuda()
+
+
+
+def get_labeled_features(args, models, labeled_in_loader):
+    models['csi'].eval()
+
+    layers = ('simclr', 'shift')
+    if not isinstance(layers, (list, tuple)):
+        layers = [layers]
+    kwargs = {layer: True for layer in layers}
+
+    features_in = torch.tensor([]).cuda()
+    for data in labeled_in_loader:
+
+        inputs = data[1][0].cuda()
+        
+        _, couts = models['csi'](inputs, **kwargs)
+
+
+        features_in = torch.cat((features_in, couts['simclr'].detach()), 0)
+    return features_in
+
+def get_unlabeled_features_LL(args, models, unlabeled_loader):
+    models['csi'].eval()
+    layers = ('simclr', 'shift')
+    if not isinstance(layers, (list, tuple)):
+        layers = [layers]
+    kwargs = {layer: True for layer in layers}
+
+
+    labelArr = []
+
+    # generate entire unlabeled features set
+    features_unlabeled = torch.tensor([]).cuda()
+    pred_loss = torch.tensor([]).cuda()
+    in_ood_masks = torch.tensor([]).type(torch.LongTensor).cuda()
+    indices = torch.tensor([]).type(torch.LongTensor).cuda()
+
+    for data in unlabeled_loader:
+
+
+        inputs = data[1][0].cuda()
+        labels = data[1][1].cuda()
+        index = data[0].cuda()
+
+        in_ood_mask = labels.le(args.num_IN_class - 1).type(torch.LongTensor).cuda()
+        in_ood_masks = torch.cat((in_ood_masks, in_ood_mask.detach()), 0)
+
+        out, couts = models['csi'](inputs, **kwargs)
+        features_unlabeled = torch.cat((features_unlabeled, couts['simclr'].detach()), 0)
+
+        out, features = models['backbone'](inputs)
+        pred_l = models['module'](features)  # pred_loss = criterion(scores, labels) # ground truth loss
+        pred_l = pred_l.view(pred_l.size(0))
+        pred_loss = torch.cat((pred_loss, pred_l.detach()), 0)
+
+        indices = torch.cat((indices, index), 0)
+
+
+        labels = labels.cpu()
+        labelArr += list(np.array(labels.data))
+
+
+    return pred_loss.reshape((-1, 1)), features_unlabeled, in_ood_masks.reshape((-1, 1)), indices, labelArr
+
+
+def standardize(scores):
+    std, mean = torch.std_mean(scores, unbiased=False)
+    scores = (scores - mean) / std
+    scores = torch.exp(scores)
+    return scores, std, mean
+
+
+
+def construct_meta_input(informativeness, purity):
+    informativeness, std, mean = standardize(informativeness)
+    print("informativeness mean: {}, std: {}".format(mean, std))
+
+    purity, std, mean = standardize(purity)
+    print("purity mean: {}, std: {}".format(mean, std))
+
+    # TODO:
+    meta_input = torch.cat((informativeness, purity), 1)
+    return meta_input
+
+
+
+def MQNet(args, model, query, Len_labeled_ind_train, unlabeledloader, trainloader, use_gpu):
+
+
+
+    features_in = get_labeled_features(args, model, trainloader)
+
+    ##########################################################################################################
+
+    if args.mqnet_mode == 'CONF':
+        informativeness, features_unlabeled, _, _ = get_unlabeled_features(args, model, unlabeledloader)
+    
+    if args.mqnet_mode == 'LL':
+        informativeness, features_unlabeled, _, queryIndex, labelArr = get_unlabeled_features_LL(args, model, unlabeledloader)
+
+    purity = get_CSI_score(args, features_in, features_unlabeled)
+    
+
+    assert len(informativeness) == len(purity)
+
+    
+    if query == 0:# initial round, MQNet is not trained yet
+        
+        if args.mqnet_mode == 'LL':
+            informativeness, _, _ = standardize(informativeness)
+        
+        purity, _, _ = standardize(purity)
+        query_scores = informativeness + purity
+    
+    else:
+    
+        meta_input = construct_meta_input(informativeness, purity)
+        query_scores = model['mqnet'](meta_input)
+    
+
+    selected_indices    = np.argsort(-query_scores.reshape(-1).detach().cpu().numpy())[:args.query_batch]
+    
+
+    final_chosen_index = queryIndex[selected_indices].detach().cpu().numpy()
+
+
+
+    labelArr = np.array(labelArr)
+
+    queryLabelArr = labelArr[selected_indices]
+
+    ##############################################
+
+
+    invalid_index = final_chosen_index[np.where(queryLabelArr >= args.known_class)[0]]
+
+    valid_index   = final_chosen_index[np.where(queryLabelArr < args.known_class)[0]]
+
+
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+
+
+    #precision = len(final_chosen_index) / args.query_batch
+    
+    #recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+    #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
+    
+    recall = (len(valid_index) + Len_labeled_ind_train) / (
+
+            len(np.where(np.array(labelArr) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    return valid_index, invalid_index, precision, recall
+
+
+
+    #return Q_index, query_scores
+
+
+
+
+
+
+
 def random_sampling(args, unlabeledloader, Len_labeled_ind_train, model, use_gpu):
     model.eval()
     queryIndex = []

@@ -1,0 +1,139 @@
+Currently using GPU: 6
+Creating dataset: cifar100
+Files already downloaded and verified
+Shuffle
+openset here!
+Files already downloaded and verified
+Creating model: ResNet18
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 32.150
+informativeness mean: 0.2738903760910034, std: 0.22322334349155426
+purity mean: 0.9990845918655396, std: 0.0002730229462031275
+>> Train MQNet.>>> Finished.
+Query round: 0 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 58 | Query Precision: 0.145 | Query Recall: 0.0858 | Training Nums: 858 | Unalebled Nums: 49142
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000>>> Finished.
+Test acc: * Prec@1 36.350
+informativeness mean: -2.949941635131836, std: 0.9980962872505188
+purity mean: 0.9986481666564941, std: 0.0007292706286534667
+informativeness mean: 0.2537134289741516, std: 0.21924898028373718
+purity mean: 0.9989356994628906, std: 0.00036543013993650675
+>> Train MQNet.>>> Finished.
+Query round: 1 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 63 | Query Precision: 0.1575 | Query Recall: 0.0921 | Training Nums: 921 | Unalebled Nums: 49079
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000>>> Finished.
+Test acc: * Prec@1 32.700
+informativeness mean: -2.740168571472168, std: 0.799174427986145
+purity mean: 0.9986533522605896, std: 0.000711332424543798
+informativeness mean: 0.2821487784385681, std: 0.22481992840766907
+purity mean: 0.9989833235740662, std: 0.00038516693166457117
+>> Train MQNet.
+>> Finished.
+Query round: 2 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 55 | Query Precision: 0.1375 | Query Recall: 0.0976 | Training Nums: 976 | Unalebled Nums: 49024
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 1000>>>> Finished.
+Test acc: * Prec@1 35.450
+informativeness mean: -3.1314404010772705, std: 0.8509097099304199
+purity mean: 0.9986675977706909, std: 0.0007256357348524034
+informativeness mean: 0.2486303299665451, std: 0.21754087507724762
+purity mean: 0.9988328218460083, std: 0.00046566713717766106
+>> Train MQNe>> >> Finished.
+Query round: 3 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 58 | Query Precision: 0.145 | Query Recall: 0.1034 | Training Nums: 1034 | Unalebled Nums: 48966
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 100>> >> Finished.
+Test acc: * Prec@1 35.400
+informativeness mean: -2.4084458351135254, std: 0.921666145324707
+purity mean: 0.9986724257469177, std: 0.0007136926287785172
+informativeness mean: 0.3283911347389221, std: 0.22376935184001923
+purity mean: 0.9991836547851562, std: 0.0002566997136455029
+>> Train MQNe>> >> Finished.
+Query round: 4 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 42 | Query Precision: 0.105 | Query Recall: 0.1076 | Training Nums: 1076 | Unalebled Nums: 48924
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10>> F>> Finished.
+Test acc: * Prec@1 35.800
+informativeness mean: -2.7542505264282227, std: 0.8748422265052795
+purity mean: 0.9986833930015564, std: 0.0007069651619531214
+informativeness mean: 0.25609976053237915, std: 0.22451329231262207
+purity mean: 0.9991196990013123, std: 0.00024069305800367147
+>> Train >> Fini>> Finished.
+Query round: 5 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 39 | Query Precision: 0.0975 | Query Recall: 0.1115 | Training Nums: 1115 | Unalebled Nums: 48885
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update>> Finis>> Finished.
+Test acc: * Prec@1 37.550
+informativeness mean: -2.785087823867798, std: 0.9063003659248352
+purity mean: 0.9986858367919922, std: 0.0007183393463492393
+informativeness mean: 0.25791293382644653, std: 0.21805819869041443
+purity mean: 0.9986262917518616, std: 0.0004253553634043783
+>> Tra>> Finishe>> Finished.
+Query round: 6 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 43 | Query Precision: 0.1075 | Query Recall: 0.1158 | Training Nums: 1158 | Unalebled Nums: 48842
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_up>> Finished.>> Finished.
+Test acc: * Prec@1 29.550
+informativeness mean: -1.5525788068771362, std: 1.298516035079956
+purity mean: 0.9987010955810547, std: 0.0006707125576213002
+informativeness mean: 0.4756440818309784, std: 0.2348710149526596
+purity mean: 0.9992949962615967, std: 0.00016013123968150467
+>> >> Finished.
+Query >> Finished.
+Query round: 7 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 25 | Query Precision: 0.0625 | Query Recall: 0.1186 | Training Nums: 1186 | Unalebled Nums: 48814
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, t>> Finished.
+Test a>> Finished.
+Test acc: * Prec@1 43.150
+informativeness mean: -2.8515818119049072, std: 0.8594850897789001
+purity mean: 0.9987343549728394, std: 0.0008046743459999561
+informativeness mean: 0.263784795999527, std: 0.22588574886322021
+purity mean: 0.9992560148239136, std: 0.000191203827853314>> Finished>> Finished.
+Query round: 8 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 28 | Query Precision: 0.07 | Query Recall: 0.1222 | Training Nums: 1222 | Unalebled Nums: 48778
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_updat>> Finish>> Finished.
+Test acc: * Prec@1 37.700
+informativeness mean: -2.6392414569854736, std: 0.9539299607276917
+purity mean: 0.9987057447433472, std: 0.0006758405361324549
+informativeness mean: 0.24811343848705292, std: 0.22307199239730835
+purity mean: 0.9990851879119873, std: 0.00030802065157331526
+>> Tr>> Finished>> Fin>> Finished.
+Query round: 9 | Query Strategy: MQNet | Query Batch: 400 | Valid Query Nums: 27 | Query Precision: 0.0675 | Query Recall: 0.1252 | Training Nums: 1252 | Unalebled Nums: 48748
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Finished. Total elapsed time (h:m:s): 1:12:17

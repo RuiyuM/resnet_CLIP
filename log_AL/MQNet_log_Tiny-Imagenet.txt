@@ -1,0 +1,7 @@
+Currently using GPU: 2
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: ResNet18
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
