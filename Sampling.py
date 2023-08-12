@@ -114,7 +114,161 @@ def construct_meta_input(informativeness, purity):
     meta_input = torch.cat((informativeness, purity), 1)
     return meta_input
 
+def hybrid_MQNet(args, model, query, Len_labeled_ind_train, unlabeledloader, trainloader, use_gpu, labelArr_true):
+    features_in = get_labeled_features(args, model, trainloader)
 
+    ##########################################################################################################
+
+    if args.mqnet_mode == 'CONF':
+        informativeness, features_unlabeled, _, _ = get_unlabeled_features(args, model, unlabeledloader)
+
+    if args.mqnet_mode == 'LL':
+        informativeness, features_unlabeled, _, queryIndex, labelArr = get_unlabeled_features_LL(args, model,
+                                                                                                 unlabeledloader)
+
+    purity = get_CSI_score(args, features_in, features_unlabeled)
+
+    assert len(informativeness) == len(purity)
+
+    if query == 0:  # initial round, MQNet is not trained yet
+
+        if args.mqnet_mode == 'LL':
+            informativeness, _, _ = standardize(informativeness)
+
+        purity, _, _ = standardize(purity)
+        query_scores = informativeness + purity
+
+    else:
+
+        meta_input = construct_meta_input(informativeness, purity)
+        query_scores = model['mqnet'](meta_input)
+
+    selected_indices = np.argsort(-query_scores.reshape(-1).detach().cpu().numpy())[:args.query_batch]
+
+    final_chosen_index = queryIndex[selected_indices].detach().cpu().numpy()
+
+    labelArr = np.array(labelArr)
+
+    queryLabelArr = labelArr[selected_indices]
+
+    ##############################################
+
+    invalid_index = final_chosen_index[np.where(queryLabelArr >= args.known_class)[0]]
+
+    valid_index = final_chosen_index[np.where(queryLabelArr < args.known_class)[0]]
+
+    precision = len(np.where(queryLabelArr < args.known_class)[0]) / len(queryLabelArr)
+
+    # precision = len(final_chosen_index) / args.query_batch
+
+    # recall = (len(final_chosen_index) + Len_labeled_ind_train) / (
+    #        len([x for x in labelArr if args.known_class]) + Len_labeled_ind_train)
+
+    recall = (len(valid_index) + Len_labeled_ind_train) / (
+
+            len(np.where(np.array(labelArr_true) < args.known_class)[0]) + Len_labeled_ind_train)
+
+    return valid_index, invalid_index, precision, recall
+
+    # return Q_index, query_scores
+
+
+def hybrid(args, model, query, Len_labeled_ind_train, unlabeledloader, trainloader, use_gpu, len_unlabeled_ind_train
+           , labeled_ind_train, invalidList, unlabeled_ind_train, ordered_feature, ordered_label, labeled_index_to_label
+           ):
+    index_knn = CIFAR100_EXTRACT_FEATURE_CLIP_new(labeled_ind_train + invalidList, unlabeled_ind_train, args,
+                                                  ordered_feature, ordered_label)
+
+    labelArr = []
+
+    model['backbone'].eval()
+    #################################################################
+    S_index = {}
+
+    for batch_idx, (index, (data, labels)) in enumerate(unlabeledloader):
+
+        if use_gpu:
+            data, labels = data.cuda(), labels.cuda()
+
+        with torch.no_grad():
+            outputs, _ = model['backbone'](data)
+
+        v_ij, predicted = outputs.max(1)
+
+        labelArr += list(np.array(labels.cpu().data))
+
+        for i in range(len(data.data)):
+            predict_class = predicted[i].detach()
+
+            predict_value = np.array(v_ij.data.cpu())[i]
+
+            predict_prob = outputs[i, :]
+
+            tmp_index = index[i].item()
+
+            true_label = np.array(labels.data.cpu())[i]
+
+            S_index[tmp_index] = [true_label, predict_class, predict_value, predict_prob.detach().cpu()]
+
+    #################################################################
+
+    # 上半部分的code就是把Resnet里面的输出做了一下简单的数据处理，把21长度的数据取最大值然后把这个值和其在数据集里面的index，label组成一个字典的value放到S——ij里面
+
+    # queryIndex 存放known class的地方
+    queryIndex = []
+
+    neighbor_unknown = {}
+
+    detected_unknown = 0.0
+    detected_known = 0.0
+
+    for current_index in S_index:
+
+        index_Neighbor, values = index_knn[current_index]
+
+        true_label = S_index[current_index][0]
+
+        count_known = 0.0
+        count_unknown = 0.0
+
+        for k in range(len(index_Neighbor)):
+
+            n_index = index_Neighbor[k]
+
+            if n_index in set(labeled_ind_train):
+                count_known += 1
+
+            elif n_index in set(invalidList):
+                count_unknown += 1
+
+        if count_unknown < count_known:
+
+            queryIndex.append([current_index, count_known, true_label])
+
+        else:
+            detected_unknown += 1
+
+    print("detected_unknown: ", detected_unknown)
+    print("\n")
+
+    queryIndex = sorted(queryIndex, key=lambda x: x[-2], reverse=True)
+
+    #################################################################
+
+    queryIndex = queryIndex[:2 * args.query_batch]
+    newList = [sublist[0] for sublist in queryIndex]
+
+    B_dataset = datasets.create(
+        name=args.dataset, known_class_=args.known_class, init_percent_=args.init_percent,
+        batch_size=args.batch_size, use_gpu=use_gpu,
+        num_workers=args.workers, is_filter=args.is_filter, is_mini=args.is_mini, SEED=args.seed,
+        unlabeled_ind_train=newList, labeled_ind_train=labeled_ind_train,
+    )
+
+    _, unlabeledloader = B_dataset.trainloader, B_dataset.unlabeledloader
+
+    return hybrid_MQNet(args, model, query, Len_labeled_ind_train, unlabeledloader, trainloader, use_gpu,
+                        labelArr)
 
 def MQNet(args, model, query, Len_labeled_ind_train, unlabeledloader, trainloader, use_gpu):
 

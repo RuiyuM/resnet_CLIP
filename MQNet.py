@@ -51,7 +51,7 @@ parser.add_argument('--max-query', type=int, default=10)
 parser.add_argument('--query-batch', type=int, default=1500)
 parser.add_argument('--query-strategy', type=str, default='AV_based2',
                     choices=['random', 'uncertainty', 'AV_based', 'AV_uncertainty', 'AV_based2', 'Max_AV',
-                             'AV_temperature', 'My_Query_Strategy', 'test_query', 'MQNet', 'test_query_2', 'active_query', "BGADL", "OpenMax", "Core_set", 'BADGE_sampling', "certainty"])
+                             'AV_temperature', 'My_Query_Strategy', 'test_query', 'MQNet','hybrid-MQNet', 'test_query_2', 'active_query', "BGADL", "OpenMax", "Core_set", 'BADGE_sampling', "certainty"])
 parser.add_argument('--stepsize', type=int, default=20)
 parser.add_argument('--gamma', type=float, default=0.5, help="learning rate decay")
 # model
@@ -292,7 +292,29 @@ def main():
             models = meta_train(args, models, optimizers, schedulers, criterion, trainloader_B, unlabeledloader, delta_loader)
 
             ######################################################################
+        if args.query_strategy == "hybrid-MQNet":
+            queryIndex, invalidIndex, Precision[query], Recall[query] = Sampling.hybrid(args, model_B, query,
+                                                                                       len(labeled_ind_train),
+                                                                                       unlabeledloader,
+                                                                                       trainloader_B,
+                                                                                       use_gpu, len(unlabeled_ind_train)
+                                                                                       , labeled_ind_train, invalidList
+                                                                                       , unlabeled_ind_train,
+                                                                                       ordered_feature, ordered_label,
+                                                                                       index_to_label
+                                                                                       )
 
+            ######################################################################
+
+            models, optimizers, schedulers = init_mqnet(args, nets, model_B, optimizers, schedulers)
+
+            # unlabeled_loader = DataLoader(unlabeled_dst, sampler=SubsetRandomSampler(U_index), batch_size=64, num_workers=4)
+
+            delta_loader = DataLoader(trainset, sampler=SubsetRandomSampler(queryIndex), batch_size=max(1, 32),
+                                      num_workers=0)
+
+            # models = meta_train(args, models, optimizers, schedulers, criterion, trainloader_B, unlabeledloader,
+            #                     delta_loader)
         ##############################################################################################################
 
         per_round.append(list(queryIndex) + list(invalidIndex))

@@ -558,7 +558,12 @@ def train(args, models, criterion, optimizers, schedulers, dataloaders):
             for epoch in tqdm(range(args.epochs), leave=False, total=args.epochs):
                 train_epoch(args, models, criterion, optimizers, dataloaders)
                 schedulers['backbone'].step()
-       
+    elif args.query_strategy in ['hybrid-MQNet']:  # MQNet
+
+        if args.mqnet_mode == "CONF":
+            for epoch in tqdm(range(args.epochs), leave=False, total=args.epochs):
+                train_epoch(args, models, criterion, optimizers, dataloaders)
+                schedulers['backbone'].step()
 
         elif args.mqnet_mode == "LL":
 
@@ -724,7 +729,7 @@ def get_models(args, nets, model, models, dataset):
             models['backbone'] = backbone
 
     # MQNet
-    elif args.query_strategy == 'MQNet':
+    elif args.query_strategy == 'MQNet' or args.query_strategy == "hybrid-MQNet":
         model_ = model + '_LL'
         
         args.channel = 3
@@ -819,7 +824,7 @@ def get_optim_configurations(args, models):
         schedulers = {'backbone': scheduler, 'semantic': scheduler_warmup_sem, 'distinctive': scheduler_warmup_dis}
 
     # MQ-Net
-    elif args.query_strategy == 'MQNet':
+    elif args.query_strategy == 'MQNet' or args.query_strategy == "hybrid-MQNet":
         optim_module = torch.optim.SGD(models['module'].parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
         sched_module = torch.optim.lr_scheduler.MultiStepLR(optim_module, milestones=args.milestone)
 
