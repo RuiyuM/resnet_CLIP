@@ -488,6 +488,7 @@ def train_epoch_LL(args, models, epoch, criterion, optimizers, dataloaders):
         optimizers['backbone'].zero_grad()
         optimizers['module'].zero_grad()
 
+
         # Classification loss for in-distribution
         scores, features = models['backbone'](inputs)
         target_loss = criterion(scores, labels)
@@ -651,15 +652,7 @@ def str_to_bool(v):
 
 def get_more_args(args):
     cuda = ""
-    if len(args.gpu) > 1:
-        cuda = 'cuda'
-    elif len(args.gpu) == 1:
-        cuda = 'cuda:' + str(args.gpu[0])
 
-    if args.dataset == 'ImageNet':
-        args.device = cuda if torch.cuda.is_available() else 'cpu'
-    else:
-        args.device = cuda if torch.cuda.is_available() else 'cpu'
 
     if args.dataset == 'CIFAR10':
         args.channel = 3
@@ -671,9 +664,9 @@ def get_more_args(args):
         args.im_size = (32, 32)
         #args.num_IN_class = 40
 
-    elif args.dataset == 'ImageNet50':
+    elif args.dataset == 'Tiny-Imagenet':
         args.channel = 3
-        args.im_size = (224, 224)
+        args.im_size = (64, 64)
         #args.num_IN_class = 50
 
     return args
@@ -735,7 +728,7 @@ def get_models(args, nets, model, models, dataset):
         model_ = model + '_LL'
         
         args.channel = 3
-        args.im_size = (32, 32)
+        #args.im_size = (32, 32)
         args.num_IN_class = dataset.num_classes
 
         backbone = nets.__dict__[model_](args.channel, args.num_IN_class, args.im_size).cuda()

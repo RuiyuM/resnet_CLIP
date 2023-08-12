@@ -127,7 +127,8 @@ class ResNet(nn.Module):
 
         output = self.avg_pool(output)
         features_for_TSNE = torch.flatten(output, 1)
-       
+               
+
         feature = output.view(output.size(0), -1)
         
         #feature = self.fc1(output)

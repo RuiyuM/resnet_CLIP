@@ -118,6 +118,7 @@ parser.add_argument('--mqnet-mode', default="LL", help="specifiy the mode of MQN
 args = parser.parse_args()
 
     
+args= get_more_args(args)
 
 
 def init_mqnet(args, nets, models, optimizers, schedulers):

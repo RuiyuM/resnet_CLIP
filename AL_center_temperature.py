@@ -452,6 +452,10 @@ def train_B(model, criterion_xent, criterion_cent,
     for batch_idx, (index, (data, labels)) in enumerate(trainloader):
         if use_gpu:
             data, labels = data.cuda(), labels.cuda()
+
+        print (model)
+        print (data.size())
+
         features, outputs = model(data)
         loss_xent = criterion_xent(outputs, labels)
         #loss_cent = criterion_cent(features, labels)
