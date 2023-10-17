@@ -7,7 +7,7 @@ from matplotlib.ticker import MaxNLocator
 import matplotlib.patches as patches
 from matplotlib import cm
 from matplotlib.ticker import MultipleLocator
-
+from matplotlib.lines import Line2D
 datasets = {
     "cifar10": {
         "known_class": ['_resnet18', '_resnet34', '_resnet50',
@@ -146,8 +146,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
             tic.tick1line.set_visible(False)
             tic.tick2line.set_visible(False)
-    # plt.savefig(f'image/{group_name.split()[0]} Batch {batch_size} pretrained acc.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'image/new_{group_name.split()[0]} Batch {batch_size} pretrained acc.png', format='png', dpi=300)
+    # plt.show()
 
     # Precision plot
     fig, ax = plt.subplots(figsize=(7.5, 6))
@@ -264,8 +264,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
             tic.tick1line.set_visible(False)
             tic.tick2line.set_visible(False)
-    # plt.savefig(f'image/{group_name.split()[0]} Batch {batch_size} pretrained precision.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'image/new_{group_name.split()[0]} Batch {batch_size} pretrained precision.png', format='png', dpi=300)
+    # plt.show()
 
     # Recall plot
     fig, ax = plt.subplots(figsize=(7.5, 6))
@@ -291,8 +291,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
     ax.set_title(f'{dataset_name_map[group_name.split()[0]]}    Batch Size: {batch_size}', fontsize=22)
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.tick_params(axis='both', which='major', labelsize=18)
-    # plt.savefig(f'image/{group_name.split()[0]} Batch {batch_size} pretrained recall.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'image/new_{group_name.split()[0]} Batch {batch_size} pretrained recall.png', format='png', dpi=300)
+    # plt.show()
 
 
 from matplotlib import patches
@@ -332,17 +332,14 @@ def plot_legend(datasets):
     other_methods = [method for method in known_class_labels if method not in desired_order]
     ordered_known_classes = desired_order + other_methods
 
-    # Create a separate legend plot
-    legend_elements = [patches.Patch(color=method_colors[known_class], label=label)
+    legend_elements = [Line2D([0], [0], color=method_colors[known_class], label=label, linestyle='--', linewidth=2)
                        for known_class, label in zip(known_classes, ordered_known_classes)]
 
-    fig, ax = plt.subplots(figsize=(7.6, 2.4))  # Adjust the figsize to 640x480 pixels
-    legend = ax.legend(handles=legend_elements, loc='center', ncol=5, bbox_to_anchor=(0.5, 0.5))
-    for text in legend.get_texts():
-        text.set_fontsize(16)
+    fig, ax = plt.subplots(figsize=(10, 2.4))  # Adjust the figsize to 640x480 pixels
+    ax.legend(handles=legend_elements, loc='center', ncol=5, bbox_to_anchor=(0.5, 0.5))
     ax.axis('off')
-    # plt.savefig(f'image/pretrained legend.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'image/h-legend.png', format='png', dpi=300)
+    # plt.show()
 
 
 

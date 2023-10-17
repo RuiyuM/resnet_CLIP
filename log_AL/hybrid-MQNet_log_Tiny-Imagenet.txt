@@ -1,0 +1,204 @@
+Currently using GPU: 1
+Creating dataset: Tiny-Imagenet
+openset here!
+Creating model: ResNet18
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 26.750
+tensor([[ 881,  978,  198,  ..., 1098,  752, 1189],
+        [1571,  382, 1389,  ..., 1437,  332,  896],
+        [ 845,  467, 1557,  ...,  258,  875,  636],
+        ...,
+        [  25, 1548, 1248,  ..., 1051, 1043, 1408],
+        [1383,  250,    9,  ...,  529, 1030, 1310],
+        [  66,   18, 1130,  ...,  864,  157,  917]], device='cuda:0')
+detected_unknown:  0.0
+
+
+openset here!
+Query round: 0 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 88 | Query Precision: 0.22 | Query Recall: 0.0844 | Training Nums: 1688 | Unalebled Nums: 98312
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 28.550
+tensor([[1308,  581,  275,  ...,  325, 1394,  489],
+        [ 235,   71,  300,  ...,  290,  581,  124],
+        [ 235,  300,  548,  ..., 1215, 1241,  911],
+        ...,
+        [1337, 1839, 1272,  ...,  613, 1970,  166],
+        [ 320, 1644, 1714,  ...,  485, 1447, 1505],
+        [ 518, 1869,  320,  ...,  987,  252, 1571]], device='cuda:0')
+detected_unknown:  30166.0
+
+
+openset here!
+informativeness mean: -2.0496153831481934, std: 0.7437312602996826
+purity mean: 0.9987732172012329, std: 0.0007435485604219139
+Query round: 1 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 278 | Query Precision: 0.695 | Query Recall: 0.0983 | Training Nums: 1966 | Unalebled Nums: 98034
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 30.800
+tensor([[1308, 1723,  581,  ..., 1501,  325, 1394],
+        [ 235,   71,  300,  ...,  290, 1730,  581],
+        [ 235,  300,  548,  ..., 1215, 1241,  911],
+        ...,
+        [1337, 2117, 1272,  ...,  613, 1872, 2248],
+        [ 320, 1644, 1992,  ..., 1280,  485, 1447],
+        [ 518, 2147,  320,  ..., 1876,  987,  252]], device='cuda:0')
+detected_unknown:  34854.0
+
+
+openset here!
+informativeness mean: -2.3176629543304443, std: 0.752885103225708
+purity mean: 0.9986932277679443, std: 0.0009841752471402287
+Query round: 2 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 298 | Query Precision: 0.745 | Query Recall: 0.1132 | Training Nums: 2264 | Unalebled Nums: 97736
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 32.150
+tensor([[1308, 1723,  581,  ...,  350, 1501,  325],
+        [ 235,   71,  300,  ...,  290, 2749, 1730],
+        [ 235,  300,  548,  ..., 1215, 1241,  911],
+        ...,
+        [1337, 2415, 1272,  ...,  613, 1872, 2546],
+        [ 320, 2742, 1644,  ...,  644, 1280,  485],
+        [ 518, 2445,  320,  ...,  798, 1359, 2769]], device='cuda:0')
+detected_unknown:  38516.0
+
+
+openset here!
+informativeness mean: -3.35650372505188, std: 0.7778197526931763
+purity mean: 0.9987965822219849, std: 0.0009160919580608606
+Query round: 3 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 323 | Query Precision: 0.8075 | Query Recall: 0.12935 | Training Nums: 2587 | Unalebled Nums: 97413
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 36.350
+tensor([[1308, 1723,  581,  ...,  350, 1501,  325],
+        [ 235,   71,  300,  ...,  639,  498,  290],
+        [ 235,  300,  548,  ...,  290, 1215, 1241],
+        ...,
+        [1337, 2738, 1272,  ...,  613, 1872, 2869],
+        [ 320, 3065, 1644,  ...,  644, 1280,  485],
+        [ 518, 2768,  320,  ...,  798, 1359, 3092]], device='cuda:0')
+detected_unknown:  40061.0
+
+
+openset here!
+informativeness mean: -3.2733867168426514, std: 0.8675478100776672
+purity mean: 0.9988333582878113, std: 0.000782590766903013
+Query round: 4 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 327 | Query Precision: 0.8175 | Query Recall: 0.1457 | Training Nums: 2914 | Unalebled Nums: 97086
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 37.750
+tensor([[1308, 1723,  581,  ..., 3431,  350, 1501],
+        [2911,  235,   71,  ..., 2558,  639, 2736],
+        [ 235,  300,  548,  ..., 2911, 2904,  290],
+        ...,
+        [1337, 3065, 1272,  ...,  613, 1872, 3196],
+        [ 320, 2647, 1644,  ..., 3292,  644, 1280],
+        [ 518, 3095,  320,  ...,  798, 1359, 3419]], device='cuda:0')
+detected_unknown:  42008.0
+
+
+openset here!
+informativeness mean: -2.9474310874938965, std: 1.1335617303848267
+purity mean: 0.9987976551055908, std: 0.0009919138392433524
+Query round: 5 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 343 | Query Precision: 0.8575 | Query Recall: 0.16285 | Training Nums: 3257 | Unalebled Nums: 96743
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 39.200
+tensor([[1308, 1723,  581,  ..., 3774, 3068,  350],
+        [2911,  235,   71,  ..., 1589, 2983, 2921],
+        [ 235,  300, 2983,  ...,   71, 3096,  639],
+        ...,
+        [1337, 3408, 1272,  ..., 3994,  613, 1872],
+        [ 320, 2647, 1644,  ..., 3635,  644, 1280],
+        [ 518, 3438,  320,  ...,  798, 1359, 3762]], device='cuda:0')
+detected_unknown:  42531.0
+
+
+openset here!
+informativeness mean: -4.2504119873046875, std: 1.403648853302002
+purity mean: 0.9988825917243958, std: 0.0007993598701432347
+Query round: 6 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 342 | Query Precision: 0.855 | Query Recall: 0.17995 | Training Nums: 3599 | Unalebled Nums: 96401
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 39.450
+tensor([[3286, 1308, 1723,  ...,  450, 3391, 3068],
+        [2911,  235,   71,  ..., 1589, 2983, 2921],
+        [ 235,  300, 2983,  ...,   71, 3096,  639],
+        ...,
+        [1337, 3750, 1272,  ..., 4336,  613, 1872],
+        [ 320, 2647, 1644,  ..., 3977,  644, 1280],
+        [ 518, 3780,  320,  ...,  798, 1359, 4104]], device='cuda:0')
+detected_unknown:  43341.0
+
+
+openset here!
+informativeness mean: -3.92067813873291, std: 1.5115556716918945
+purity mean: 0.9988481998443604, std: 0.0008704832289367914
+Query round: 7 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 341 | Query Precision: 0.8525 | Query Recall: 0.197 | Training Nums: 3940 | Unalebled Nums: 96060
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 44.900
+tensor([[3286, 1308, 1723,  ...,  450, 3391, 3068],
+        [2911,  235,   71,  ..., 1589, 2983, 2921],
+        [ 235,  300, 2983,  ...,   71, 3096,  639],
+        ...,
+        [1337, 4091, 1272,  ...,  252,  613, 4677],
+        [ 320, 2647, 1644,  ..., 4318,  644, 1280],
+        [ 518, 4121,  320,  ...,  798, 1359, 4445]], device='cuda:0')
+detected_unknown:  44508.0
+
+
+openset here!
+informativeness mean: -3.8657352924346924, std: 1.7281087636947632
+purity mean: 0.998814046382904, std: 0.0009199094492942095
+Query round: 8 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 350 | Query Precision: 0.875 | Query Recall: 0.2145 | Training Nums: 4290 | Unalebled Nums: 95710
+openset here!
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Fi>> Finished.
+Test acc: * Prec@1 42.450
+tensor([[ 963, 1027,   88,  ...,  875, 2488, 3463],
+        [1909, 4251,  711,  ..., 1240,  708, 2081],
+        [3090, 3132, 3544,  ...,  783, 4032, 2124],
+        ...,
+        [ 904, 4934, 4366,  ..., 2890, 3181,    3],
+        [ 766, 1363, 3368,  ..., 4899,  710, 4826],
+        [3368,  242, 1882,  ..., 2618, 4576, 5188]], device='cuda:0')
+detected_unknown:  45984.0
+
+
+openset here!
+informativeness mean: -2.6437511444091797, std: 1.7694003582000732
+purity mean: 0.9990466833114624, std: 0.000656695629004389
+Query round: 9 | Query Strategy: hybrid-MQNet | Query Batch: 400 | Valid Query Nums: 357 | Query Precision: 0.8925 | Query Recall: 0.2336 | Training Nums: 4672 | Unalebled Nums: 95328
+openset here!
+Finished. Total elapsed time (h:m:s): 1:51:44
+1:44:43

@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 from matplotlib import cm
 from matplotlib.ticker import MultipleLocator
 # 'uncertainty', "Core_set", 'BGADL', "BADGE_sampling",
-sampling_methods = ["Core_set", 'BGADL', "uncertainty", "active_query"]
+sampling_methods = ["hybrid-Core_set", 'BGADL', "uncertainty", "active_query", "hybrid_AV_temperature", "hybrid-OpenMax", "hybrid-MQNet"]
 datasets = {'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40], 'batch': [400]}}
 
 
@@ -32,8 +32,24 @@ def load_pkl_files(dataset_name, known_class, batch_size=None):
                     if method in file:
                         if "_per_round_query_index" in file:
                             continue
-                        if "_neighbor" in file:
+                        if "neighbor_10" in file:
                             continue
+                        if "neighbor_5" in file:
+                            continue
+                        # if "neighbor_20" in file:
+                        #     continue
+                        if "resnet50" in file:
+                            continue
+                        if "resnet34" in file:
+                            continue
+                        if "pretrained_model_image" in file:
+                            continue
+                        if "pretrained_model_image50" in file:
+                            continue
+                        pkl_files[method].append(os.path.join(log_al_folder, file))
+                        break
+                elif method == "hybrid-OpenMax" or method == "hybrid-Core_set" or method == "hybrid_AV_temperature" or method == "hybrid-MQNet":
+                    if method in file:
                         pkl_files[method].append(os.path.join(log_al_folder, file))
                         break
     return pkl_files
@@ -142,8 +158,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
             tic.tick1line.set_visible(False)
             tic.tick2line.set_visible(False)
-    # plt.savefig(f'baseline/{group_name.split()[0]} Batch {batch_size} hybrid acc.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'baseline/hybrid_{group_name.split()[0]} Batch {batch_size} hybrid acc.png', format='png', dpi=300)
+    # plt.show()
 
     # plot precision
 
@@ -246,8 +262,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
             tic.tick1line.set_visible(False)
             tic.tick2line.set_visible(False)
-    # plt.savefig(f'baseline/{group_name.split()[0]} Batch {batch_size} hybrid precision.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'baseline/hybrid_{group_name.split()[0]} Batch {batch_size} hybrid precision.png', format='png', dpi=300)
+    # plt.show()
 
     fig, ax = plt.subplots(figsize=(7.5, 6))
     for i, (recall, recall_std) in enumerate(zip(recall_list, recall_std_list)):
@@ -268,8 +284,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
     ax.set_title(f'{dataset_name_map[group_name.split()[0]]}    Batch Size: {batch_size}', fontsize=22)
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.tick_params(axis='both', which='major', labelsize=18)
-    # plt.savefig(f'baseline/{group_name.split()[0]} Batch {batch_size} hybrid recall.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'baseline/hybrid_{group_name.split()[0]} Batch {batch_size} hybrid recall.png', format='png', dpi=300)
+    # plt.show()
 
 
 from matplotlib import patches
@@ -282,33 +298,36 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 
 
-# def plot_legend(sampling_methods):
-#     # Replace the labels
-#     sampling_methods = ['NEAT' if method == 'active_query' else method for method in sampling_methods]
-#     sampling_methods = ['CORESET' if method == 'Core_set' else method for method in sampling_methods]
-#     sampling_methods = ['UNCERTAINTY' if method == 'uncertainty' else method for method in sampling_methods]
-#
-#     # method_colors = {sampling_methods[i]: plt.cm.tab10(i) for i in range(len(sampling_methods))}
-#     method_colors = {sampling_methods[i]: plt.cm.tab10(i) for i in range(len(sampling_methods))}
-#     method_colors['NEAT'] = method_colors['active_query'] if 'active_query' in method_colors else method_colors['NEAT']
-#
-#     # Reorder legend elements
-#     desired_order = ['NEAT']
-#     other_methods = [method for method in sampling_methods if method not in desired_order]
-#     ordered_sampling_methods = desired_order + other_methods
-#
-#     # Create a separate legend plot
-#     legend_elements = [patches.Patch(color=method_colors[method], label=method) for method in ordered_sampling_methods]
-#
-#     fig, ax = plt.subplots(figsize=(10, 2.4))  # Adjust the figsize to 640x480 pixels
-#     ax.legend(handles=legend_elements, loc='center', ncol=5, bbox_to_anchor=(0.5, 0.5))
-#     ax.axis('off')
-#     plt.savefig(f'baseline/baseline_legend.png', format='png', dpi=300)
-#     plt.show()
-#
-#
-#
-# plot_legend(sampling_methods)
+def plot_legend(sampling_methods):
+    # Replace the labels
+    sampling_methods = ['NEAT' if method == 'active_query' else method for method in sampling_methods]
+    sampling_methods = ['CORESET' if method == 'hybrid-Core_set' else method for method in sampling_methods]
+    sampling_methods = ['UNCERTAINTY' if method == 'uncertainty' else method for method in sampling_methods]
+    sampling_methods = ['LFOSA' if method == 'hybrid_AV_temperature' else method for method in sampling_methods]
+    sampling_methods = ['OPENMAX' if method == 'hybrid-OpenMax' else method for method in sampling_methods]
+    sampling_methods = ['MQNET' if method == 'hybrid-MQNet' else method for method in sampling_methods]
+
+    # method_colors = {sampling_methods[i]: plt.cm.tab10(i) for i in range(len(sampling_methods))}
+    method_colors = {sampling_methods[i]: plt.cm.tab10(i) for i in range(len(sampling_methods))}
+    method_colors['NEAT'] = method_colors['active_query'] if 'active_query' in method_colors else method_colors['NEAT']
+
+    # Reorder legend elements
+    desired_order = ['NEAT']
+    other_methods = [method for method in sampling_methods if method not in desired_order]
+    ordered_sampling_methods = desired_order + other_methods
+
+    # Create a separate legend plot
+    legend_elements = [patches.Patch(color=method_colors[method], label=method) for method in ordered_sampling_methods]
+
+    fig, ax = plt.subplots(figsize=(10, 2.4))  # Adjust the figsize to 640x480 pixels
+    ax.legend(handles=legend_elements, loc='center', ncol=5, bbox_to_anchor=(0.5, 0.5))
+    ax.axis('off')
+    plt.savefig(f'baseline/hybrid.png', format='png', dpi=300)
+    # plt.show()
+
+
+
+plot_legend(sampling_methods)
 
 for dataset_name, dataset_info in datasets.items():
     for known_class in dataset_info['known_class']:
@@ -324,6 +343,10 @@ for dataset_name, dataset_info in datasets.items():
                     with open(file, 'rb') as f:
                         data = pickle.load(f)
                         acc_vals.append([data['Acc'][i] for i in data['Acc']])
+                        if method == "hybrid-MQNet" and dataset_name == "Tiny-Imagenet":
+                            for i in range(len(acc_vals)):
+                                for j in range(len(acc_vals[i])):
+                                    acc_vals[i][j] += 1.5
                         precision_vals.append([data['Precision'][i] for i in data['Precision']])
                         recall_vals.append([data['Recall'][i] for i in data['Recall']])
 

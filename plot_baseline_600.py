@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 from matplotlib.ticker import MultipleLocator
 from matplotlib import cm
 
-sampling_methods = ['test_query', 'uncertainty', "AV_temperature", "active_query", "Core_set", 'certainty', 'OpenMax', 'BGADL', 'random', "BADGE_sampling"]
+sampling_methods = ['active_query', 'uncertainty', "AV_temperature", "test_query", "Core_set", 'MQNet', 'OpenMax', 'BGADL', 'random', "BADGE_sampling"]
 datasets = {'cifar100': {'init_percent': 8, 'known_class': [20], 'batch': [600, 800]},
     'cifar10': {'init_percent': 1, 'known_class': [2], 'batch': [600, 800]},
     'Tiny-Imagenet': {'init_percent': 8, 'known_class': [40], 'batch': [600, 800]}}
@@ -24,6 +24,9 @@ def load_pkl_files(dataset_name, known_class, batch_size=None):
                 if method in file:
                     if "_per_round_query_index" in file:
                         continue
+                    if method == "Core_set" or method == 'OpenMax':
+                        if "pretrained_model_clip" not in file:
+                            continue
                     pkl_files[method].append(os.path.join(log_al_folder, file))
                     break
     return pkl_files
@@ -139,8 +142,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
             tic.tick1line.set_visible(False)
             tic.tick2line.set_visible(False)
-    plt.savefig(f'600_800/{group_name.split()[0]} Batch {batch_size} baseline acc.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'image/600_{group_name.split()[0]} Batch {batch_size} baseline acc.png', format='png', dpi=300)
+    # plt.show()
 
     # plot precision
 
@@ -249,8 +252,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
         for tic in ax_inset.xaxis.get_major_ticks() + ax_inset.yaxis.get_major_ticks():
             tic.tick1line.set_visible(False)
             tic.tick2line.set_visible(False)
-    plt.savefig(f'600_800/{group_name.split()[0]} Batch {batch_size} baseline precision.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'image/600_{group_name.split()[0]} Batch {batch_size} baseline precision.png', format='png', dpi=300)
+    # plt.show()
 
     fig, ax = plt.subplots(figsize=(7.5, 6))
     for i, (recall, recall_std) in enumerate(zip(recall_list, recall_std_list)):
@@ -271,8 +274,8 @@ def plot_graphs(group_name, acc_list, precision_list, recall_list, acc_std_list,
     ax.set_title(f'{dataset_name_map[group_name.split()[0]]}    Batch Size: {batch_size}', fontsize=22)
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.tick_params(axis='both', which='major', labelsize=18)
-    plt.savefig(f'600_800/{group_name.split()[0]} Batch {batch_size} baseline recall.png', format='png', dpi=300)
-    plt.show()
+    plt.savefig(f'image/600_{group_name.split()[0]} Batch {batch_size} baseline recall.png', format='png', dpi=300)
+    # plt.show()
 
 
 

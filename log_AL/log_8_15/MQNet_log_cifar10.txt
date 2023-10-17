@@ -1,0 +1,14 @@
+Currently using GPU: 2
+Creating dataset: cifar10
+Files already downloaded and verified
+openset here!
+Files already downloaded and verified
+Creating model: ResNet18
+lr: 0.01, momentum: 0.9, decay: 0.0005
+>> Train a Model.
+num_epochs: 100, steps_per_epoch: 100, total_update: 10000
+>> Finished.
+Test acc: * Prec@1 50.000
+informativeness mean: 0.49575990438461304, std: 0.0014538551913574338
+purity mean: 0.9965146780014038, std: 0.0029655632097274065
+>> Train MQNet.
