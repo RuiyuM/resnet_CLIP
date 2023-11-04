@@ -42,7 +42,7 @@ parser.add_argument('-d', '--dataset', type=str, default='cifar100', choices=['T
 parser.add_argument('-j', '--workers', default=0, type=int,
                     help="number of data loading workers (default: 4)")
 # optimization
-parser.add_argument('--batch-size', type=int, default=128)
+parser.add_argument('--batch-size', type=int, default=64)
 #parser.add_argument('--lr-model', type=float, default=0.01, help="learning rate for model")
 parser.add_argument('--lr-cent', type=float, default=0.5, help="learning rate for center loss")
 parser.add_argument('--weight-cent', type=float, default=1, help="weight for center loss")
@@ -377,7 +377,7 @@ def main():
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type) + "_neighbor_" + str(args.k)
     '''
     
-    selected_index = "./log_AL/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
+    selected_index = "./log_8_15/hybrid_temperature_" + args.model + "_" + args.dataset + "_known" + str(args.known_class) + "_init" + str(
                     args.init_percent) + "_batch" + str(args.query_batch) + "_seed" + str(
                     args.seed) + "_" + args.query_strategy + "_unknown_T" + str(args.unknown_T) + "_known_T" + str(
                     args.known_T) + "_modelB_T" + str(args.modelB_T) + "_pretrained_model_" + str(args.pre_type)

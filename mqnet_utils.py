@@ -659,12 +659,12 @@ def get_more_args(args):
     cuda = ""
 
 
-    if args.dataset == 'CIFAR10':
+    if args.dataset == 'cifar10':
         args.channel = 3
         args.im_size = (32, 32)
         #args.num_IN_class = 4
 
-    elif args.dataset == 'CIFAR100':
+    elif args.dataset == 'cifar100':
         args.channel = 3
         args.im_size = (32, 32)
         #args.num_IN_class = 40
